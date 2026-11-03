@@ -128,6 +128,50 @@ function initDashboard() {
   loadLeads();
   setupImageDropzones();
   setupPostEditor();
+  setupChangePassword();
+}
+
+function setupChangePassword() {
+  const formChangePw = document.getElementById('form-change-password');
+  if (!formChangePw) return;
+
+  formChangePw.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const currentPassword = document.getElementById('pw-current').value;
+    const newPassword = document.getElementById('pw-new').value;
+    const confirmPassword = document.getElementById('pw-confirm').value;
+    const msg = document.getElementById('pw-msg');
+
+    if (newPassword !== confirmPassword) {
+      msg.textContent = 'Mật khẩu xác nhận không khớp!';
+      msg.className = 'text-xs p-2 rounded-lg bg-red-50 text-red-600 border border-red-200 block';
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${AUTH_TOKEN}`
+        },
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Đổi mật khẩu thành công! Bạn vui lòng đăng nhập lại bằng mật khẩu mới.');
+        AUTH_TOKEN = '';
+        localStorage.removeItem('caulong_admin_token');
+        window.location.reload();
+      } else {
+        msg.textContent = data.message || 'Lỗi khi đổi mật khẩu!';
+        msg.className = 'text-xs p-2 rounded-lg bg-red-50 text-red-600 border border-red-200 block';
+      }
+    } catch (err) {
+      msg.textContent = 'Không thể kết nối máy chủ!';
+      msg.className = 'text-xs p-2 rounded-lg bg-red-50 text-red-600 border border-red-200 block';
+    }
+  });
 }
 
 // --------------------------------------------------------------
@@ -522,7 +566,9 @@ const badgeNewLeads = document.getElementById('badge-new-leads');
 
 async function loadLeads() {
   try {
-    const res = await fetch('/api/registrations');
+    const res = await fetch('/api/registrations', {
+      headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+    });
     const json = await res.json();
     if (json.success) {
       leadsData = json.data;
