@@ -1,0 +1,11 @@
+# robots.txt for https://lophoccaulong.com
+User-agent: *
+Allow: /
+Allow: /blog.html
+Allow: /blog-detail.html
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /private/
+
+# Sitemap
+Sitemap: https://lophoccaulong.com/sitemap.xml

@@ -1,0 +1,581 @@
+/* =================================================================
+   LỚP HỌC CẦU LÔNG Q4 & Q7 - Mobile-First Clean & Sporty Style
+   Website: https://lophoccaulong.com
+   Tối ưu hóa chuyên sâu cho điện thoại màn hình dọc (Portrait Mobile)
+   ================================================================= */
+
+/* --- Mobile Safe Areas & Base Resets --- */
+:root {
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+*, *::before, *::after {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 72px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Be Vietnam Pro', 'Inter', -apple-system, sans-serif;
+  color: #0f172a;
+  background-color: #ffffff;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', 'Montserrat', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Ngăn iOS Safari tự động phóng to (auto-zoom) khi chạm vào input */
+input, select, textarea {
+  font-size: 16px !important;
+  touch-action: manipulation;
+}
+
+/* --- Custom Clean Scrollbar --- */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
+
+/* --- Hide Scrollbar for Horizontal Scroll on Mobile --- */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* --- Sporty Slant & Badge Accents --- */
+.sport-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.7rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+/* --- Clean Elevated Cards --- */
+.clean-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.15rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.clean-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 28px -6px rgba(15, 23, 42, 0.07);
+  transform: translateY(-3px);
+}
+
+.clean-card-interactive {
+  position: relative;
+  overflow: hidden;
+}
+
+.clean-card-interactive::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #10b981, #059669);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.clean-card-interactive:hover::after {
+  opacity: 1;
+}
+
+/* --- Touch-Optimized Buttons (Min 44px height for mobile thumbs) --- */
+.btn-primary-sport {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #0f172a;
+  color: #ffffff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.875rem;
+  min-height: 48px;
+  padding: 0.75rem 1.35rem;
+  border-radius: 0.85rem;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
+  touch-action: manipulation;
+}
+
+.btn-primary-sport:active {
+  transform: scale(0.98);
+}
+
+.btn-primary-sport:hover {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);
+}
+
+.btn-accent-sport {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #10b981;
+  color: #ffffff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.875rem;
+  min-height: 48px;
+  padding: 0.75rem 1.35rem;
+  border-radius: 0.85rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
+  touch-action: manipulation;
+}
+
+.btn-accent-sport:active {
+  transform: scale(0.98);
+}
+
+.btn-accent-sport:hover {
+  background: #059669;
+  box-shadow: 0 6px 22px rgba(16, 185, 129, 0.3);
+}
+
+.btn-secondary-clean {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  min-height: 48px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.85rem;
+  transition: all 0.2s ease;
+  touch-action: manipulation;
+}
+
+.btn-secondary-clean:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary-clean:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #059669;
+}
+
+/* --- Clean Navigation Bar --- */
+#header {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #f1f5f9;
+  transition: all 0.25s ease;
+}
+
+#header.scrolled {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 2px 14px rgba(15, 23, 42, 0.05);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* --- Step & Number Accents (Sporty 01, 02, 03) --- */
+.stat-number {
+  font-variant-numeric: tabular-nums;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.step-number {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 900;
+  font-size: 1.85rem;
+  line-height: 1;
+  color: #e2e8f0;
+  transition: color 0.2s ease;
+}
+
+.clean-card:hover .step-number {
+  color: #10b981;
+}
+
+/* --- Segmented Control Tabs (Mobile Horizontal Scroll Friendly) --- */
+.tab-pill {
+  transition: all 0.2s ease;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 9999px;
+  color: #64748b;
+  background: transparent;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+
+.tab-pill.active {
+  color: #ffffff;
+  background: #0f172a;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.15);
+}
+
+.tab-content {
+  display: none;
+  animation: tabFadeIn 0.3s ease;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- TikTok Vertical Cards (Clean Minimalist 9:16) --- */
+.video-card-clean {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  border-radius: 1.15rem;
+  overflow: hidden;
+  background: #0f172a;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  touch-action: manipulation;
+}
+
+.video-card-clean:active {
+  transform: scale(0.98);
+}
+
+.video-card-clean .poster-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.video-card-clean .overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.25) 0%, rgba(15, 23, 42, 0.05) 40%, rgba(15, 23, 42, 0.92) 100%);
+}
+
+.video-card-clean .play-btn {
+  transition: all 0.2s ease;
+}
+
+.video-card-clean:hover .play-btn {
+  transform: scale(1.1);
+  background: #10b981;
+}
+
+/* --- Clean Pricing Card --- */
+.pricing-card-clean {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.25rem;
+  transition: all 0.25s ease;
+}
+
+.pricing-card-clean.featured {
+  border: 2px solid #10b981;
+  box-shadow: 0 10px 24px rgba(16, 185, 129, 0.1);
+}
+
+/* --- Clean FAQ Accordion --- */
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.faq-item.active .faq-answer {
+  max-height: 600px;
+}
+
+.faq-chevron {
+  transition: transform 0.25s ease;
+}
+
+.faq-item.active .faq-chevron {
+  transform: rotate(180deg);
+}
+
+/* --- Clean Toast Notification (Optimized for Mobile Bottom Placement) --- */
+.toast {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  transform: translateY(-120%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 420px;
+  width: calc(100% - 32px);
+}
+
+.toast.show {
+  transform: translateY(0);
+}
+
+.toast-progress {
+  height: 3px;
+  background: #10b981;
+  border-radius: 0 0 1rem 1rem;
+  animation: toast-progress-anim 8s linear forwards;
+}
+
+@keyframes toast-progress-anim {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+/* --- Floating Actions Speed-Dial (Tối ưu màn hình dọc) --- */
+.floating-actions {
+  position: fixed;
+  bottom: calc(18px + var(--safe-bottom));
+  right: 16px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.float-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: 9999px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.18);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  touch-action: manipulation;
+}
+
+.float-action-btn:active {
+  transform: scale(0.94);
+}
+
+@keyframes soft-pulse-ring {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+.float-action-phone::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  border: 2px solid #10b981;
+  animation: soft-pulse-ring 2.2s infinite ease-out;
+}
+
+/* --- Quick Mobile Bottom Contact Bar (Khi cuộn trang trên điện thoại) --- */
+.mobile-bottom-bar {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .mobile-bottom-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 85;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid #e2e8f0;
+    padding: 0.65rem 1rem calc(0.65rem + var(--safe-bottom));
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06);
+    transition: transform 0.25s ease;
+  }
+
+  .mobile-bottom-bar.hidden-bar {
+    transform: translateY(100%);
+  }
+
+  /* Khi có bottom bar, dời nút floating actions lên trên 1 chút để không bị che */
+  .floating-actions {
+    bottom: calc(72px + var(--safe-bottom));
+    right: 12px;
+  }
+
+  /* Di chuyển vị trí hiển thị Toast xuống gần đáy màn hình điện thoại */
+  .toast {
+    top: auto;
+    bottom: calc(76px + var(--safe-bottom));
+    right: 12px;
+    left: 12px;
+    width: auto;
+    transform: translateY(120%);
+  }
+
+  .toast.show {
+    transform: translateY(0);
+  }
+
+  /* Tối ưu scroll-padding-top trên màn hình dọc */
+  html {
+    scroll-padding-top: 64px;
+  }
+
+  /* Padding các section trên mobile gọn gàng hơn */
+  section {
+    padding-top: 3.25rem !important;
+    padding-bottom: 3.25rem !important;
+  }
+
+  #hero {
+    padding-top: 5rem !important;
+    padding-bottom: 2.75rem !important;
+  }
+}
+
+/* --- Form Highlight Animation --- */
+@keyframes form-clean-highlight {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.25); }
+}
+
+.form-highlight-pulse {
+  animation: form-clean-highlight 1.5s ease-in-out 2;
+}
+
+/* --- Clean Video Modal --- */
+.video-modal {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.video-modal.active {
+  display: flex;
+  opacity: 1;
+}
+
+/* --- Scroll Reveal Animations --- */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.06s; }
+.reveal-delay-2 { transition-delay: 0.12s; }
+.reveal-delay-3 { transition-delay: 0.18s; }
+.reveal-delay-4 { transition-delay: 0.24s; }
+
+/* --- Mobile Drawer --- */
+.mobile-drawer {
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding-bottom: calc(1.5rem + var(--safe-bottom));
+}
+
+.mobile-drawer.open {
+  transform: translateX(0);
+}
+
+.drawer-overlay {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.drawer-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* --- Achievement & Blog Specific Enhancements --- */
+.medal-badge-gold {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+}
+
+.medal-badge-silver {
+  background: linear-gradient(135deg, #94A3B8, #64748B);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(100, 116, 139, 0.25);
+}
+
+.medal-badge-bronze {
+  background: linear-gradient(135deg, #D97706, #B45309);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* --- Print styles --- */
+@media print {
+  .floating-actions,
+  .mobile-bottom-bar,
+  #header,
+  .mobile-drawer,
+  .drawer-overlay,
+  .toast,
+  .video-modal {
+    display: none !important;
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "lop-hoc-cau-long",
+  "version": "1.0.0",
+  "description": "Website và CMS Landing Page Lớp Học Cầu Lông Q4 & Q7",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "badminton",
+    "cau-long",
+    "lop-hoc-cau-long"
+  ],
+  "author": "Lớp Học Cầu Lông Q4 & Q7",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "multer": "^2.5.0"
+  }
+}

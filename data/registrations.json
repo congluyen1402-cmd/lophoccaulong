@@ -1,0 +1,24 @@
+[
+  {
+    "id": "reg_001",
+    "name": "Trần Minh Quân",
+    "phone": "0918123456",
+    "course": "Khóa Cầu Lông Cơ Bản (Newbie)",
+    "court": "Sân T12 Q4 (1B Hoàng Diệu)",
+    "timeSlot": "Ca T2 và T4 18h-20h (Sân T12 Q4)",
+    "note": "Chưa từng cầm vợt, muốn học để rèn luyện sức khỏe",
+    "status": "new",
+    "createdAt": "2026-11-03T08:30:00.000Z"
+  },
+  {
+    "id": "reg_002",
+    "name": "Nguyễn Thị Mai Chi",
+    "phone": "0987654321",
+    "course": "Khóa Nâng Cao & Đánh Đôi",
+    "court": "Sân Dni Sport Q7 (85 Nguyễn Văn Quỳ)",
+    "timeSlot": "Ca T3 và T5 18h-20h (Sân Dni Sport Q7)",
+    "note": "Muốn cải thiện kỹ thuật đập cầu và phối hợp đôi nữ",
+    "status": "contacted",
+    "createdAt": "2026-11-02T19:15:00.000Z"
+  }
+]
