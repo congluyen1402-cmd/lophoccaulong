@@ -444,7 +444,7 @@ async function initCoursesLoader() {
 
     if (list.length > 0) {
       container.innerHTML = list.map((c, idx) => `
-        <div class="clean-card overflow-hidden flex flex-col justify-between scroll-reveal reveal-delay-${(idx % 4) + 1} group">
+        <div class="clean-card overflow-hidden flex flex-col justify-between group transition-all duration-300">
           <div>
             <div class="h-40 sm:h-44 overflow-hidden bg-slate-900 relative">
               <img src="${c.image}"

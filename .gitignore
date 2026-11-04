@@ -15,3 +15,6 @@ data/auth_config.json
 .DS_Store
 Thumbs.db
 
+# Local Backups
+data/backup_*/
+
