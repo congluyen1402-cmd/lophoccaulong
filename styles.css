@@ -19,6 +19,8 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 72px;
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body {
@@ -26,6 +28,8 @@ body {
   color: #0f172a;
   background-color: #ffffff;
   overflow-x: hidden;
+  width: 100%;
+  position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -419,21 +423,62 @@ input, select, textarea {
 }
 
 @media (max-width: 640px) {
+  /* Tối ưu khoảng trống đáy để thanh mobile-bottom-bar không che nội dung */
+  body {
+    padding-bottom: calc(72px + var(--safe-bottom)) !important;
+  }
+
+  /* Typography thích ứng tối đa cho màn hình dọc */
+  h1 {
+    font-size: clamp(1.45rem, 5.8vw, 2.15rem) !important;
+    line-height: 1.24 !important;
+    letter-spacing: -0.025em !important;
+    word-break: break-word;
+  }
+
+  h2 {
+    font-size: clamp(1.2rem, 5vw, 1.7rem) !important;
+    line-height: 1.3 !important;
+    letter-spacing: -0.02em !important;
+    word-break: break-word;
+  }
+
+  /* Thẻ card gọn gàng, bo góc mềm mại trên điện thoại */
+  .clean-card {
+    border-radius: 1rem;
+  }
+
+  /* Nút bấm cảm ứng thoải mái cho ngón tay cái */
+  .btn-primary-sport, .btn-accent-sport, .btn-secondary-clean {
+    min-height: 48px !important;
+    font-size: 0.84rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Inputs & Form controls */
+  input, select, textarea {
+    font-size: 16px !important;
+    border-radius: 0.75rem !important;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+
   .mobile-bottom-bar {
     display: flex;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 85;
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    z-index: 95;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-top: 1px solid #e2e8f0;
-    padding: 0.65rem 1rem calc(0.65rem + var(--safe-bottom));
+    padding: 0.55rem 0.85rem calc(0.55rem + var(--safe-bottom));
     align-items: center;
-    gap: 0.5rem;
-    box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06);
+    gap: 0.45rem;
+    box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08);
     transition: transform 0.25s ease;
   }
 
@@ -443,14 +488,14 @@ input, select, textarea {
 
   /* Khi có bottom bar, dời nút floating actions lên trên 1 chút để không bị che */
   .floating-actions {
-    bottom: calc(72px + var(--safe-bottom));
+    bottom: calc(76px + var(--safe-bottom));
     right: 12px;
   }
 
   /* Di chuyển vị trí hiển thị Toast xuống gần đáy màn hình điện thoại */
   .toast {
     top: auto;
-    bottom: calc(76px + var(--safe-bottom));
+    bottom: calc(80px + var(--safe-bottom));
     right: 12px;
     left: 12px;
     width: auto;
@@ -468,13 +513,31 @@ input, select, textarea {
 
   /* Padding các section trên mobile gọn gàng hơn */
   section {
-    padding-top: 3.25rem !important;
-    padding-bottom: 3.25rem !important;
+    padding-top: 2.75rem !important;
+    padding-bottom: 2.75rem !important;
   }
 
   #hero {
-    padding-top: 5rem !important;
-    padding-bottom: 2.75rem !important;
+    padding-top: 4.75rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+}
+
+/* --- Tối ưu thêm cho các dòng điện thoại bề ngang hẹp (iPhone SE, Galaxy 360-390px) --- */
+@media (max-width: 390px) {
+  .mobile-bottom-bar {
+    padding: 0.5rem 0.5rem calc(0.5rem + var(--safe-bottom));
+    gap: 0.3rem;
+  }
+
+  .mobile-bottom-bar a {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  .mobile-bottom-bar a span:first-child {
+    font-size: 0.85rem !important;
   }
 }
 
@@ -523,6 +586,9 @@ input, select, textarea {
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   padding-bottom: calc(1.5rem + var(--safe-bottom));
+  height: 100vh;
+  height: 100dvh;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-drawer.open {

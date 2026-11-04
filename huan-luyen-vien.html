@@ -273,6 +273,36 @@
             Chứng chỉ HLV Liên đoàn Cầu lông Thế giới <strong class="text-court-700">(BWF)</strong> • Cựu VĐV Đội tuyển <strong class="text-slate-900">Đại học Tôn Đức Thắng</strong> với hơn <strong class="text-court-700">6+ năm giảng dạy thực tế</strong> tại TP. Hồ Chí Minh.
           </p>
 
+          <!-- Mobile Hero Portrait Image Card (Hiển thị nổi bật ngay trên điện thoại) -->
+          <div class="lg:hidden my-6 max-w-sm mx-auto">
+            <div class="relative bg-white rounded-3xl p-3 shadow-xl border border-slate-100 overflow-hidden">
+              <div class="relative rounded-2xl overflow-hidden bg-slate-900 aspect-[3/4] flex items-center justify-center">
+                <img src="uploads/hlv-tran-cong-luyen.jpg"
+                     alt="HLV Trưởng Trần Công Luyện (Kevin) - Lớp Học Cầu Lông Q4 & Q7"
+                     class="w-full h-full object-cover object-top select-none"
+                     loading="eager">
+
+                <!-- Badge on Top Right -->
+                <div class="absolute top-2.5 right-2.5 bg-slate-900/85 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/20 shadow-md">
+                  <span class="text-emerald-400">●</span>
+                  <span>BWF Coach Certified</span>
+                </div>
+
+                <!-- Gradient Overlay at Bottom -->
+                <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent p-3.5 text-white">
+                  <p class="font-heading font-black text-base">Trần Công Luyện (Kevin)</p>
+                  <p class="text-[11px] text-slate-300 font-medium">HLV Trưởng • Sân T12 (Q4) &amp; Dni Sport (Q7)</p>
+                </div>
+              </div>
+
+              <!-- Location Footer Under Image -->
+              <div class="pt-2 px-1 flex items-center justify-between text-[11px] text-slate-500">
+                <span class="flex items-center gap-1 font-semibold text-slate-700">📍 Sân Q4 &amp; Q7 TP.HCM</span>
+                <span class="font-bold text-court-700">BWF STANDARD</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Quote Block -->
           <div class="border-l-4 border-court-600 bg-white shadow-xs rounded-r-2xl p-4 sm:p-5 mb-6 text-slate-600 text-xs sm:text-sm leading-relaxed italic">
             "Mục tiêu của tôi không chỉ là dạy bạn đánh trúng cầu, mà là giúp bạn làm chủ bộ pháp, phát lực đúng chuẩn giải phẫu cơ học để chơi cầu thanh thoát, đánh cầu cắm sâu mà tuyệt đối không lo đau khớp hay chấn thương vai cổ tay."
@@ -311,8 +341,8 @@
           </div>
         </div>
 
-        <!-- Right Column: Coach Real Photo (5 cols) -->
-        <div class="lg:col-span-5 flex justify-center">
+        <!-- Right Column: Coach Real Photo (Desktop Only, 5 cols) -->
+        <div class="hidden lg:flex lg:col-span-5 justify-center">
           <div class="relative w-full max-w-sm sm:max-w-md">
 
             <!-- Decorative Glow Card -->
@@ -885,7 +915,7 @@
   <!-- K. ZALO QR CODE MODAL POPUP                                       -->
   <!-- ================================================================= -->
   <div id="zalo-qr-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-5 sm:p-6 relative shadow-2xl border border-slate-200 text-center animate-fade-in">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 sm:p-6 relative shadow-2xl border border-slate-200 text-center animate-fade-in max-h-[92vh] overflow-y-auto">
       <button id="zalo-modal-close" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors text-sm font-bold" aria-label="Đóng popup Zalo">
         ✕
       </button>
@@ -931,3 +961,4 @@
   </script>
 </body>
 </html>
+
