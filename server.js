@@ -324,6 +324,8 @@ app.post('/api/achievements', requireAdmin, upload.single('imageFile'), (req, re
     court: sanitizeInput(body.court || 'Sân Dni Sport (Quận 7)'),
     duration: sanitizeInput(body.duration || 'Học viên khóa cơ bản'),
     image: imageUrl,
+    imagePosition: sanitizeInput(body.imagePosition || 'center 15%'),
+    imageFit: sanitizeInput(body.imageFit || 'cover'),
     quote: sanitizeInput(body.quote || 'Tự tin thi đấu và đạt thành tích xuất sắc sau khóa học.'),
     date: sanitizeInput(body.date || new Date().toISOString().split('T')[0]),
     featured: body.featured === 'true' || body.featured === true
@@ -339,14 +341,35 @@ app.post('/api/achievements', requireAdmin, upload.single('imageFile'), (req, re
   });
 });
 
-app.put('/api/achievements/:id', requireAdmin, (req, res) => {
+app.put('/api/achievements/:id', requireAdmin, upload.single('imageFile'), (req, res) => {
   const achievements = readJson('achievements.json', []);
   const idx = achievements.findIndex(a => a.id === req.params.id);
   if (idx === -1) {
     return res.status(404).json({ success: false, message: 'Không tìm thấy thành tích!' });
   }
 
-  achievements[idx] = { ...achievements[idx], ...req.body };
+  const body = req.body;
+  let imageUrl = achievements[idx].image;
+  if (req.file) {
+    imageUrl = `/uploads/achievements/${req.file.filename}`;
+  } else if (body.imageUrl) {
+    imageUrl = sanitizeInput(body.imageUrl);
+  }
+
+  achievements[idx] = {
+    ...achievements[idx],
+    studentName: body.studentName !== undefined ? sanitizeInput(body.studentName) : achievements[idx].studentName,
+    award: body.award !== undefined ? sanitizeInput(body.award) : achievements[idx].award,
+    tournament: body.tournament !== undefined ? sanitizeInput(body.tournament) : achievements[idx].tournament,
+    court: body.court !== undefined ? sanitizeInput(body.court) : achievements[idx].court,
+    duration: body.duration !== undefined ? sanitizeInput(body.duration) : achievements[idx].duration,
+    image: imageUrl,
+    imagePosition: body.imagePosition !== undefined ? sanitizeInput(body.imagePosition) : (achievements[idx].imagePosition || 'center 15%'),
+    imageFit: body.imageFit !== undefined ? sanitizeInput(body.imageFit) : (achievements[idx].imageFit || 'cover'),
+    quote: body.quote !== undefined ? sanitizeInput(body.quote) : achievements[idx].quote,
+    date: body.date !== undefined ? sanitizeInput(body.date) : achievements[idx].date
+  };
+
   writeJson('achievements.json', achievements);
   res.json({ success: true, message: 'Cập nhật thành tích thành công!', data: achievements[idx] });
 });
@@ -444,6 +467,8 @@ app.post('/api/posts', requireAdmin, upload.single('coverImageFile'), (req, res)
     date: sanitizeInput(body.date || new Date().toISOString().split('T')[0]),
     readTime: sanitizeInput(body.readTime || '5 phút đọc'),
     coverImage: coverImage,
+    imagePosition: sanitizeInput(body.imagePosition || 'center 20%'),
+    imageFit: sanitizeInput(body.imageFit || 'cover'),
     summary: sanitizeInput(body.summary || ''),
     content: body.content || '', // Cho phép HTML có cấu trúc chuẩn cho bài viết
     tags: parsedTags,
@@ -461,14 +486,28 @@ app.post('/api/posts', requireAdmin, upload.single('coverImageFile'), (req, res)
   });
 });
 
-app.put('/api/posts/:id', requireAdmin, (req, res) => {
+app.put('/api/posts/:id', requireAdmin, upload.single('coverImageFile'), (req, res) => {
   const posts = readJson('posts.json', []);
   const idx = posts.findIndex(p => p.id === req.params.id);
   if (idx === -1) {
     return res.status(404).json({ success: false, message: 'Không tìm thấy bài viết để sửa!' });
   }
 
-  posts[idx] = { ...posts[idx], ...req.body };
+  const body = req.body;
+  let coverImage = posts[idx].coverImage;
+  if (req.file) {
+    coverImage = `/uploads/blog/${req.file.filename}`;
+  } else if (body.coverImage) {
+    coverImage = sanitizeInput(body.coverImage);
+  }
+
+  posts[idx] = {
+    ...posts[idx],
+    ...body,
+    coverImage,
+    imagePosition: body.imagePosition ? sanitizeInput(body.imagePosition) : (posts[idx].imagePosition || 'center 20%'),
+    imageFit: body.imageFit ? sanitizeInput(body.imageFit) : (posts[idx].imageFit || 'cover')
+  };
   writeJson('posts.json', posts);
   res.json({ success: true, message: 'Cập nhật bài viết thành công!', data: posts[idx] });
 });

@@ -377,11 +377,12 @@ async function initAchievementsLoader() {
     if (list.length > 0) {
       container.innerHTML = list.map(item => `
         <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md hover:border-court-500/50 transition-all duration-300 flex flex-col group">
-          <div class="relative h-48 bg-slate-100 overflow-hidden">
+          <div class="relative h-48 bg-slate-900 overflow-hidden">
             <img src="${item.image}"
                  alt="${item.studentName} - ${item.award}"
                  loading="lazy"
-                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                 style="object-position: ${item.imagePosition || 'center 15%'}; object-fit: ${item.imageFit || 'cover'};"
+                 class="w-full h-full group-hover:scale-105 transition duration-500"
                  onerror="this.src='https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80'">
             <div class="absolute top-3 left-3 bg-amber-500 text-white font-extrabold text-[11px] px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
               <span>🏆</span> ${item.award}

@@ -128,6 +128,7 @@ function initDashboard() {
   loadLeads();
   setupImageDropzones();
   setupPostEditor();
+  setupFramingControls();
   setupChangePassword();
 }
 
@@ -221,8 +222,10 @@ function renderAchievements() {
 
   achListContainer.innerHTML = achievementsData.map(item => `
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col group hover:border-emerald-500/50 transition">
-      <div class="relative h-44 bg-slate-100 overflow-hidden">
-        <img src="${item.image}" alt="${item.studentName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+      <div class="relative h-44 bg-slate-900 overflow-hidden">
+        <img src="${item.image}" alt="${item.studentName}"
+             style="object-position: ${item.imagePosition || 'center 15%'}; object-fit: ${item.imageFit || 'cover'};"
+             class="w-full h-full group-hover:scale-105 transition duration-500"
              onerror="this.src='https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80'">
         <div class="absolute top-3 left-3 bg-amber-500 text-white font-bold text-[11px] px-2.5 py-1 rounded-full shadow flex items-center gap-1">
           <i data-lucide="award" class="w-3.5 h-3.5"></i> ${item.award}
@@ -239,10 +242,16 @@ function renderAchievements() {
         </div>
         <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
           <span class="text-[11px] text-slate-400">${item.duration || 'Học viên'} • ${item.date || ''}</span>
-          <button onclick="deleteAchievement('${item.id}')"
-                  class="text-xs text-red-500 hover:text-red-700 font-semibold flex items-center gap-1 hover:bg-red-50 px-2 py-1 rounded-lg transition">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Xóa
-          </button>
+          <div class="flex items-center gap-1.5">
+            <button onclick="editAchievement('${item.id}')"
+                    class="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 hover:bg-blue-50 px-2.5 py-1 rounded-lg transition border border-blue-200 hover:border-blue-400" title="Chỉnh sửa bài này">
+              <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Sửa
+            </button>
+            <button onclick="deleteAchievement('${item.id}')"
+                    class="text-xs text-red-500 hover:text-red-700 font-semibold flex items-center gap-1 hover:bg-red-50 px-2 py-1 rounded-lg transition border border-red-200 hover:border-red-400" title="Xóa bài này">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Xóa
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -251,8 +260,108 @@ function renderAchievements() {
   refreshIcons();
 }
 
+function editAchievement(id) {
+  const item = achievementsData.find(a => a.id === id);
+  if (!item) return;
+
+  document.getElementById('ach-id').value = item.id;
+  document.getElementById('ach-name').value = item.studentName || '';
+  document.getElementById('ach-award').value = item.award || '';
+  document.getElementById('ach-tournament').value = item.tournament || '';
+  document.getElementById('ach-court').value = item.court || 'Sân T12 (Quận 4)';
+  document.getElementById('ach-duration').value = item.duration || '';
+  document.getElementById('ach-quote').value = item.quote || '';
+  document.getElementById('ach-image-url').value = (item.image && item.image.startsWith('http')) ? item.image : '';
+
+  // Framing & position
+  const pos = item.imagePosition || 'center 15%';
+  document.getElementById('ach-image-position').value = pos;
+  const match = pos.match(/(\d+)%/);
+  const numVal = match ? parseInt(match[1]) : 15;
+  const slider = document.getElementById('ach-pos-slider');
+  if (slider) slider.value = numVal;
+  const label = document.getElementById('ach-pos-label');
+  if (label) label.textContent = `Vị trí (${numVal}%)`;
+  const fitSelect = document.getElementById('ach-image-fit');
+  if (fitSelect) fitSelect.value = item.imageFit || 'cover';
+
+  // Preview container
+  const previewImg = document.getElementById('ach-preview-img');
+  if (previewImg) {
+    previewImg.src = item.image;
+    previewImg.style.objectPosition = pos;
+    previewImg.style.objectFit = item.imageFit || 'cover';
+  }
+  document.getElementById('ach-preview-container').classList.remove('hidden');
+  document.getElementById('ach-upload-prompt').classList.add('hidden');
+  document.getElementById('ach-file-name').textContent = 'Ảnh hiện tại (Bấm vùng trên để tải ảnh mới thay thế)';
+
+  // Change UI to Edit Mode
+  document.getElementById('ach-form-title').innerHTML = `<span class="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm">✏️</span> Sửa Thành Tích`;
+  document.getElementById('ach-form-subtitle').textContent = `Đang chỉnh sửa bài của học viên: ${item.studentName}`;
+  document.getElementById('btn-save-achievement').innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Cập Nhật Thành Tích`;
+  document.getElementById('btn-cancel-ach').classList.remove('hidden');
+  document.getElementById('btn-cancel-ach-bottom').classList.remove('hidden');
+
+  // Highlight matching preset
+  const presets = document.querySelectorAll('.ach-pos-preset');
+  presets.forEach(btn => {
+    const bVal = parseInt(btn.dataset.val, 10);
+    if (bVal === numVal) {
+      btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'font-bold');
+      btn.classList.remove('border-slate-200', 'text-slate-700');
+    } else {
+      btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'font-bold');
+      btn.classList.add('border-slate-200', 'text-slate-700');
+    }
+  });
+
+  window.scrollTo({ top: document.getElementById('form-add-achievement').offsetTop - 90, behavior: 'smooth' });
+  refreshIcons();
+}
+
+function cancelAchievementEdit() {
+  formAddAch.reset();
+  document.getElementById('ach-id').value = '';
+  document.getElementById('ach-image-position').value = 'center 15%';
+  const slider = document.getElementById('ach-pos-slider');
+  if (slider) slider.value = 15;
+  const label = document.getElementById('ach-pos-label');
+  if (label) label.textContent = 'Căn mặt (15%)';
+  const fitSelect = document.getElementById('ach-image-fit');
+  if (fitSelect) fitSelect.value = 'cover';
+
+  const presets = document.querySelectorAll('.ach-pos-preset');
+  presets.forEach(btn => {
+    if (btn.dataset.val === '15%') {
+      btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'font-bold');
+      btn.classList.remove('border-slate-200', 'text-slate-700');
+    } else {
+      btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'font-bold');
+      btn.classList.add('border-slate-200', 'text-slate-700');
+    }
+  });
+
+  document.getElementById('ach-preview-container').classList.add('hidden');
+  document.getElementById('ach-upload-prompt').classList.remove('hidden');
+  document.getElementById('ach-file-input').value = '';
+
+  document.getElementById('ach-form-title').innerHTML = `<span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-sm">🏆</span> Thêm Thành Tích Học Viên`;
+  document.getElementById('ach-form-subtitle').textContent = 'Đăng hình thực tế học viên đạt giải thưởng, huy chương để hiển thị lên Landing Page.';
+  document.getElementById('btn-save-achievement').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4"></i> Đăng Thành Tích Lên Web`;
+  document.getElementById('btn-cancel-ach').classList.add('hidden');
+  document.getElementById('btn-cancel-ach-bottom').classList.add('hidden');
+  refreshIcons();
+}
+
+// Cancel edit buttons
+const btnCancelAch = document.getElementById('btn-cancel-ach');
+if (btnCancelAch) btnCancelAch.addEventListener('click', cancelAchievementEdit);
+const btnCancelAchBottom = document.getElementById('btn-cancel-ach-bottom');
+if (btnCancelAchBottom) btnCancelAchBottom.addEventListener('click', cancelAchievementEdit);
+
 async function deleteAchievement(id) {
-  if (!confirm('Bạn có chắc chắn muốn xóa thành tích này khỏi website?')) return;
+  if (!confirm('Bạn có chắc chắn muốn xóa bài thành tích này khỏi website?')) return;
   try {
     const res = await fetch(`/api/achievements/${id}`, {
       method: 'DELETE',
@@ -270,9 +379,12 @@ async function deleteAchievement(id) {
   }
 }
 
-// Form Add Achievement Submission
+// Form Add/Edit Achievement Submission
 formAddAch.addEventListener('submit', async (e) => {
   e.preventDefault();
+  const achId = document.getElementById('ach-id').value;
+  const isEditing = Boolean(achId);
+
   const btn = document.getElementById('btn-save-achievement');
   btn.disabled = true;
   btn.innerHTML = `<span class="animate-spin inline-block mr-2">🔄</span> Đang lưu...`;
@@ -285,6 +397,8 @@ formAddAch.addEventListener('submit', async (e) => {
   formData.append('duration', document.getElementById('ach-duration').value.trim());
   formData.append('quote', document.getElementById('ach-quote').value.trim());
   formData.append('imageUrl', document.getElementById('ach-image-url').value.trim());
+  formData.append('imagePosition', document.getElementById('ach-image-position').value || 'center 15%');
+  formData.append('imageFit', document.getElementById('ach-image-fit').value || 'cover');
 
   const fileInput = document.getElementById('ach-file-input');
   if (fileInput.files[0]) {
@@ -292,26 +406,29 @@ formAddAch.addEventListener('submit', async (e) => {
   }
 
   try {
-    const res = await fetch('/api/achievements', {
-      method: 'POST',
+    const url = isEditing ? `/api/achievements/${achId}` : '/api/achievements';
+    const method = isEditing ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method: method,
       headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` },
       body: formData
     });
     const data = await res.json();
     if (data.success) {
-      alert('Đã đăng thành tích học viên thành công!');
-      formAddAch.reset();
-      document.getElementById('ach-preview-container').classList.add('hidden');
-      document.getElementById('ach-upload-prompt').classList.remove('hidden');
+      alert(isEditing ? 'Cập nhật bài thành tích thành công!' : 'Đã đăng thành tích học viên thành công!');
+      cancelAchievementEdit();
       loadAchievements();
     } else {
-      alert(data.message || 'Lỗi khi thêm thành tích!');
+      alert(data.message || 'Lỗi khi lưu thành tích!');
     }
   } catch (err) {
-    alert('Không thể gửi dữ liệu đến máy chủ! Kiểm tra xem server.js có đang chạy không.');
+    alert('Không thể gửi dữ liệu đến máy chủ! Kiểm tra kết nối mạng.');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4"></i> Đăng Thành Tích Lên Web`;
+    btn.innerHTML = isEditing
+      ? `<i data-lucide="check" class="w-4 h-4"></i> Cập Nhật Thành Tích`
+      : `<i data-lucide="plus-circle" class="w-4 h-4"></i> Đăng Thành Tích Lên Web`;
     refreshIcons();
   }
 });
@@ -725,6 +842,8 @@ function setupImageDropzones() {
       const reader = new FileReader();
       reader.onload = (event) => {
         achPreviewImg.src = event.target.result;
+        achPreviewImg.style.objectPosition = document.getElementById('ach-image-position')?.value || 'center 15%';
+        achPreviewImg.style.objectFit = document.getElementById('ach-image-fit')?.value || 'cover';
         achFileName.textContent = file.name;
         achPreviewContainer.classList.remove('hidden');
         achUploadPrompt.classList.add('hidden');
@@ -755,6 +874,88 @@ function setupImageDropzones() {
       reader.readAsDataURL(file);
     }
   });
+}
+
+function setupFramingControls() {
+  const slider = document.getElementById('ach-pos-slider');
+  const posInput = document.getElementById('ach-image-position');
+  const posLabel = document.getElementById('ach-pos-label');
+  const fitSelect = document.getElementById('ach-image-fit');
+  const previewImg = document.getElementById('ach-preview-img');
+  const previewContainer = document.getElementById('ach-preview-container');
+  const uploadPrompt = document.getElementById('ach-upload-prompt');
+  const imageUrlInput = document.getElementById('ach-image-url');
+  const presets = document.querySelectorAll('.ach-pos-preset');
+
+  function updateFraming(valPercent) {
+    const num = parseInt(valPercent, 10);
+    const posStr = `center ${num}%`;
+    if (posInput) posInput.value = posStr;
+    if (slider) slider.value = num;
+    if (posLabel) {
+      if (num <= 25) {
+        posLabel.textContent = `Căn mặt (${num}%)`;
+      } else if (num >= 40 && num <= 60) {
+        posLabel.textContent = `Căn giữa (${num}%)`;
+      } else if (num >= 75) {
+        posLabel.textContent = `Căn dưới (${num}%)`;
+      } else {
+        posLabel.textContent = `Vị trí (${num}%)`;
+      }
+    }
+    if (previewImg) {
+      previewImg.style.objectPosition = posStr;
+    }
+
+    presets.forEach(btn => {
+      const bVal = parseInt(btn.dataset.val, 10);
+      if (bVal === num) {
+        btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'font-bold');
+        btn.classList.remove('border-slate-200', 'text-slate-700');
+      } else {
+        btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'font-bold');
+        btn.classList.add('border-slate-200', 'text-slate-700');
+      }
+    });
+  }
+
+  if (slider) {
+    slider.addEventListener('input', (e) => {
+      updateFraming(e.target.value);
+    });
+  }
+
+  presets.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.val || '15%';
+      updateFraming(val);
+    });
+  });
+
+  if (fitSelect) {
+    fitSelect.addEventListener('change', (e) => {
+      if (previewImg) {
+        previewImg.style.objectFit = e.target.value;
+      }
+    });
+  }
+
+  if (imageUrlInput) {
+    imageUrlInput.addEventListener('input', (e) => {
+      const url = e.target.value.trim();
+      if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
+        if (previewImg) {
+          previewImg.src = url;
+          previewImg.style.objectPosition = posInput ? posInput.value : 'center 15%';
+          previewImg.style.objectFit = fitSelect ? fitSelect.value : 'cover';
+        }
+        if (previewContainer) previewContainer.classList.remove('hidden');
+        if (uploadPrompt) uploadPrompt.classList.add('hidden');
+        const fileName = document.getElementById('ach-file-name');
+        if (fileName) fileName.textContent = 'Ảnh từ liên kết';
+      }
+    });
+  }
 }
 
 // Check authentication on page load
