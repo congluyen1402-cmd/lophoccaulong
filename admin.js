@@ -220,23 +220,34 @@ function renderAchievements() {
     return;
   }
 
-  achListContainer.innerHTML = achievementsData.map(item => `
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col group hover:border-emerald-500/50 transition">
+  achListContainer.innerHTML = achievementsData.map((item, index) => `
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col group hover:border-emerald-500/50 hover:shadow-md transition relative ach-item select-none" data-id="${item.id}">
       <div class="relative h-44 bg-slate-900 overflow-hidden">
         <img src="${item.image}" alt="${item.studentName}"
              style="object-position: ${item.imagePosition || 'center 15%'}; object-fit: ${item.imageFit || 'cover'};"
-             class="w-full h-full group-hover:scale-105 transition duration-500"
+             class="w-full h-full group-hover:scale-105 transition duration-500 pointer-events-none"
              onerror="this.src='https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80'">
-        <div class="absolute top-3 left-3 bg-amber-500 text-white font-bold text-[11px] px-2.5 py-1 rounded-full shadow flex items-center gap-1">
+        
+        <div class="absolute top-3 left-3 bg-amber-500 text-white font-bold text-[11px] px-2.5 py-1 rounded-full shadow flex items-center gap-1 pointer-events-none">
           <i data-lucide="award" class="w-3.5 h-3.5"></i> ${item.award}
         </div>
-        <div class="absolute bottom-2 right-2 bg-slate-900/80 backdrop-blur text-white text-[11px] px-2 py-0.5 rounded-md">
+
+        <!-- Drag Handle Grip -->
+        <div class="ach-drag-handle absolute top-3 right-3 bg-slate-900/80 hover:bg-emerald-600 text-white px-2 py-1 rounded-lg shadow-md cursor-grab active:cursor-grabbing flex items-center gap-1 text-[11px] font-semibold transition z-10" title="Giữ chuột và kéo để đổi vị trí bài">
+          <i data-lucide="grip-vertical" class="w-3.5 h-3.5"></i>
+          <span>Kéo</span>
+        </div>
+
+        <div class="absolute bottom-2 right-2 bg-slate-900/80 backdrop-blur text-white text-[11px] px-2 py-0.5 rounded-md pointer-events-none">
           ${item.court || 'Sân Q4 / Q7'}
         </div>
       </div>
       <div class="p-4 flex-1 flex flex-col justify-between">
         <div>
-          <h4 class="font-bold font-heading text-slate-900 text-base mb-1">${item.studentName}</h4>
+          <div class="flex items-center justify-between mb-1">
+            <h4 class="font-bold font-heading text-slate-900 text-base">${item.studentName}</h4>
+            <span class="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">#${index + 1}</span>
+          </div>
           <p class="text-xs font-medium text-emerald-600 mb-2">${item.tournament || 'Giải phong trào'}</p>
           <p class="text-xs text-slate-500 italic line-clamp-2">"${item.quote || 'Cảm ơn lớp học đã rèn luyện kỹ thuật tận tâm!'}"</p>
         </div>
@@ -257,6 +268,7 @@ function renderAchievements() {
     </div>
   `).join('');
 
+  setupSortableAchievements();
   refreshIcons();
 }
 
@@ -514,15 +526,22 @@ function renderPosts() {
     return;
   }
 
-  postsListContainer.innerHTML = postsData.map(post => `
-    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:border-blue-500/50 transition flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-      <div class="flex items-center gap-4">
-        <img src="${post.coverImage}" alt="${post.title}" class="w-20 h-20 rounded-xl object-cover shrink-0 border border-slate-100"
+  postsListContainer.innerHTML = postsData.map((post, index) => `
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:border-blue-500/50 hover:shadow-md transition flex flex-col md:flex-row gap-4 items-start md:items-center justify-between post-item select-none" data-id="${post.id}">
+      <div class="flex items-center gap-3 flex-1 min-w-0">
+        <!-- Drag Handle -->
+        <div class="post-drag-handle p-2 rounded-xl bg-slate-100 hover:bg-blue-100 text-slate-400 hover:text-blue-700 cursor-grab active:cursor-grabbing transition shrink-0 flex items-center justify-center" title="Giữ chuột và kéo để đổi vị trí bài">
+          <i data-lucide="grip-vertical" class="w-5 h-5 pointer-events-none"></i>
+        </div>
+        <img src="${post.coverImage}" alt="${post.title}" class="w-20 h-20 rounded-xl object-cover shrink-0 border border-slate-100 pointer-events-none"
              onerror="this.src='https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=800&q=80'">
-        <div>
-          <span class="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block mb-1">
-            ${post.category}
-          </span>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block">
+              ${post.category}
+            </span>
+            <span class="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">#${index + 1}</span>
+          </div>
           <h4 class="font-bold font-heading text-slate-900 text-sm leading-snug line-clamp-1">
             ${post.title}
           </h4>
@@ -551,6 +570,7 @@ function renderPosts() {
     </div>
   `).join('');
 
+  setupSortablePosts();
   refreshIcons();
 }
 
@@ -956,6 +976,183 @@ function setupFramingControls() {
       }
     });
   }
+}
+
+// --------------------------------------------------------------
+// 5. DRAG & DROP REORDERING (SẮP XẾP BÀI VIẾT BẰNG KÉO THẢ CHUỘT)
+// --------------------------------------------------------------
+let sortableAchInstance = null;
+let sortablePostsInstance = null;
+
+function setupSortableAchievements() {
+  const container = document.getElementById('achievements-list');
+  if (!container) return;
+
+  if (sortableAchInstance) {
+    try { sortableAchInstance.destroy(); } catch (e) {}
+    sortableAchInstance = null;
+  }
+
+  if (typeof Sortable !== 'undefined') {
+    sortableAchInstance = new Sortable(container, {
+      handle: '.ach-drag-handle',
+      animation: 200,
+      ghostClass: 'opacity-40',
+      chosenClass: 'scale-[1.02]',
+      dragClass: 'shadow-2xl',
+      onEnd: async function () {
+        const items = Array.from(container.querySelectorAll('.ach-item'));
+        const ids = items.map(el => el.dataset.id).filter(Boolean);
+        await saveAchievementsOrder(ids);
+      }
+    });
+  } else {
+    setupNativeDragAndDrop(container, '.ach-item', '.ach-drag-handle', saveAchievementsOrder);
+  }
+}
+
+async function saveAchievementsOrder(ids) {
+  const statusEl = document.getElementById('ach-reorder-status');
+  if (statusEl) {
+    statusEl.innerHTML = `<span class="animate-spin inline-block mr-1">🔄</span> Đang lưu thứ tự...`;
+    statusEl.classList.remove('hidden');
+  }
+
+  try {
+    const res = await fetch('/api/achievements/reorder', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AUTH_TOKEN}`
+      },
+      body: JSON.stringify({ ids })
+    });
+    const data = await res.json();
+    if (data.success) {
+      // Re-order local achievementsData array
+      const map = new Map(achievementsData.map(a => [a.id, a]));
+      achievementsData = ids.map(id => map.get(id)).filter(Boolean);
+
+      // Update badge numbers in DOM
+      document.querySelectorAll('#achievements-list .ach-item').forEach((card, idx) => {
+        const badge = card.querySelector('.font-mono');
+        if (badge) badge.textContent = `#${idx + 1}`;
+      });
+
+      if (statusEl) {
+        statusEl.innerHTML = `✅ Đã lưu thứ tự mới!`;
+        setTimeout(() => statusEl.classList.add('hidden'), 2500);
+      }
+    } else {
+      if (statusEl) statusEl.textContent = '⚠️ ' + (data.message || 'Lỗi khi lưu');
+    }
+  } catch (err) {
+    console.error('Lỗi lưu thứ tự thành tích:', err);
+    if (statusEl) statusEl.textContent = '⚠️ Không thể kết nối máy chủ';
+  }
+}
+
+function setupSortablePosts() {
+  const container = document.getElementById('posts-list');
+  if (!container) return;
+
+  if (sortablePostsInstance) {
+    try { sortablePostsInstance.destroy(); } catch (e) {}
+    sortablePostsInstance = null;
+  }
+
+  if (typeof Sortable !== 'undefined') {
+    sortablePostsInstance = new Sortable(container, {
+      handle: '.post-drag-handle',
+      animation: 200,
+      ghostClass: 'opacity-40',
+      chosenClass: 'scale-[1.01]',
+      dragClass: 'shadow-2xl',
+      onEnd: async function () {
+        const items = Array.from(container.querySelectorAll('.post-item'));
+        const ids = items.map(el => el.dataset.id).filter(Boolean);
+        await savePostsOrder(ids);
+      }
+    });
+  } else {
+    setupNativeDragAndDrop(container, '.post-item', '.post-drag-handle', savePostsOrder);
+  }
+}
+
+async function savePostsOrder(ids) {
+  const statusEl = document.getElementById('posts-reorder-status');
+  if (statusEl) {
+    statusEl.innerHTML = `<span class="animate-spin inline-block mr-1">🔄</span> Đang lưu thứ tự...`;
+    statusEl.classList.remove('hidden');
+  }
+
+  try {
+    const res = await fetch('/api/posts/reorder', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AUTH_TOKEN}`
+      },
+      body: JSON.stringify({ ids })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const map = new Map(postsData.map(p => [p.id, p]));
+      postsData = ids.map(id => map.get(id)).filter(Boolean);
+
+      document.querySelectorAll('#posts-list .post-item').forEach((row, idx) => {
+        const badge = row.querySelector('.font-mono');
+        if (badge) badge.textContent = `#${idx + 1}`;
+      });
+
+      if (statusEl) {
+        statusEl.innerHTML = `✅ Đã lưu thứ tự mới!`;
+        setTimeout(() => statusEl.classList.add('hidden'), 2500);
+      }
+    } else {
+      if (statusEl) statusEl.textContent = '⚠️ ' + (data.message || 'Lỗi khi lưu');
+    }
+  } catch (err) {
+    console.error('Lỗi lưu thứ tự bài viết:', err);
+    if (statusEl) statusEl.textContent = '⚠️ Không thể kết nối máy chủ';
+  }
+}
+
+function setupNativeDragAndDrop(container, itemSelector, handleSelector, onReorderCallback) {
+  let draggedItem = null;
+
+  const items = container.querySelectorAll(itemSelector);
+  items.forEach(item => {
+    item.setAttribute('draggable', 'true');
+
+    item.addEventListener('dragstart', (e) => {
+      draggedItem = item;
+      e.dataTransfer.effectAllowed = 'move';
+      item.classList.add('opacity-40');
+    });
+
+    item.addEventListener('dragend', () => {
+      item.classList.remove('opacity-40');
+      draggedItem = null;
+      const all = Array.from(container.querySelectorAll(itemSelector));
+      const ids = all.map(el => el.dataset.id).filter(Boolean);
+      onReorderCallback(ids);
+    });
+
+    item.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (!draggedItem || draggedItem === item) return;
+
+      const bounding = item.getBoundingClientRect();
+      const offset = e.clientY - bounding.top;
+      if (offset > bounding.height / 2) {
+        item.after(draggedItem);
+      } else {
+        item.before(draggedItem);
+      }
+    });
+  });
 }
 
 // Check authentication on page load

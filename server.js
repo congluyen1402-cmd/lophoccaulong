@@ -385,6 +385,31 @@ app.delete('/api/achievements/:id', requireAdmin, (req, res) => {
   res.json({ success: true, message: 'Đã xóa thành tích học viên!' });
 });
 
+app.post('/api/achievements/reorder', requireAdmin, (req, res) => {
+  const { ids } = req.body;
+  if (!Array.isArray(ids)) {
+    return res.status(400).json({ success: false, message: 'Dữ liệu ids không hợp lệ!' });
+  }
+
+  const achievements = readJson('achievements.json', []);
+  const map = new Map(achievements.map(item => [item.id, item]));
+
+  const reordered = [];
+  ids.forEach(id => {
+    if (map.has(id)) {
+      reordered.push(map.get(id));
+      map.delete(id);
+    }
+  });
+
+  for (const remaining of map.values()) {
+    reordered.push(remaining);
+  }
+
+  writeJson('achievements.json', reordered);
+  res.json({ success: true, message: 'Cập nhật thứ tự thành tích thành công!', count: reordered.length });
+});
+
 // =================================================================
 // 7. BLOG POSTS (BÀI VIẾT SEO)
 // =================================================================
@@ -517,6 +542,31 @@ app.delete('/api/posts/:id', requireAdmin, (req, res) => {
   const filtered = posts.filter(p => p.id !== req.params.id);
   writeJson('posts.json', filtered);
   res.json({ success: true, message: 'Đã xóa bài viết thành công!' });
+});
+
+app.post('/api/posts/reorder', requireAdmin, (req, res) => {
+  const { ids } = req.body;
+  if (!Array.isArray(ids)) {
+    return res.status(400).json({ success: false, message: 'Dữ liệu ids không hợp lệ!' });
+  }
+
+  const posts = readJson('posts.json', []);
+  const map = new Map(posts.map(item => [item.id, item]));
+
+  const reordered = [];
+  ids.forEach(id => {
+    if (map.has(id)) {
+      reordered.push(map.get(id));
+      map.delete(id);
+    }
+  });
+
+  for (const remaining of map.values()) {
+    reordered.push(remaining);
+  }
+
+  writeJson('posts.json', reordered);
+  res.json({ success: true, message: 'Cập nhật thứ tự bài viết thành công!', count: reordered.length });
 });
 
 // =================================================================
