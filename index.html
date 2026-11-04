@@ -476,18 +476,20 @@
 
           <!-- Mobile Hero Image Card (Hiển thị mượt mà trên điện thoại trước khi xuống phần Stats) -->
           <div class="lg:hidden mb-8">
-            <div class="relative rounded-2xl overflow-hidden shadow-md border border-slate-200 aspect-[16/10] bg-slate-100">
-              <img src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=800&q=80"
+            <div class="relative rounded-2xl overflow-hidden shadow-md border border-slate-200 aspect-[16/10] bg-slate-900">
+              <img id="mobile-hero-img"
+                   src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=800&q=80"
                    alt="Lớp học cầu lông Quận 4 và Quận 7 TP.HCM thảm tiêu chuẩn BWF"
                    loading="lazy"
+                   style="object-position: center 25%; object-fit: cover;"
                    class="w-full h-full object-cover">
               <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
               <div class="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-sm flex items-center justify-between">
                 <div>
-                  <span class="text-[10px] font-bold text-court-600 uppercase tracking-wider block">Sân tập tiêu chuẩn</span>
-                  <p class="font-heading font-bold text-slate-900 text-xs">Thảm PVC chống trượt BWF</p>
+                  <span class="hero-badge-sub text-[10px] font-bold text-court-600 uppercase tracking-wider block">Sân tập tiêu chuẩn</span>
+                  <p class="hero-badge-title font-heading font-bold text-slate-900 text-xs">Thảm PVC chống trượt BWF</p>
                 </div>
-                <span class="sport-tag bg-slate-900 text-white text-[10px] py-1 px-2.5">
+                <span class="hero-badge-loc sport-tag bg-slate-900 text-white text-[10px] py-1 px-2.5">
                   Q4 • Q7
                 </span>
               </div>
@@ -517,20 +519,22 @@
 
         <!-- Desktop Hero Visual Showcase (5 Cols) -->
         <div class="hidden lg:block lg:col-span-5 relative">
-          <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100 aspect-[4/5]">
-            <img src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=1000&q=80"
+          <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-900 aspect-[4/5]">
+            <img id="desktop-hero-img"
+                 src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=1000&q=80"
                  alt="Lớp học cầu lông Quận 4 và Quận 7 TP.HCM thảm tiêu chuẩn BWF"
                  loading="lazy"
+                 style="object-position: center 25%; object-fit: cover;"
                  class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
 
             <!-- Floating Badge On Image -->
             <div class="absolute bottom-5 left-5 right-5 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-lg flex items-center justify-between">
               <div>
-                <span class="text-[11px] font-bold text-court-600 uppercase tracking-wider block">Sân tập tiêu chuẩn</span>
-                <p class="font-heading font-bold text-slate-900 text-sm">Thảm PVC chống trượt BWF</p>
+                <span class="hero-badge-sub text-[11px] font-bold text-court-600 uppercase tracking-wider block">Sân tập tiêu chuẩn</span>
+                <p class="hero-badge-title font-heading font-bold text-slate-900 text-sm">Thảm PVC chống trượt BWF</p>
               </div>
-              <span class="sport-tag bg-slate-900 text-white text-[11px]">
+              <span class="hero-badge-loc sport-tag bg-slate-900 text-white text-[11px]">
                 Q4 • Q7
               </span>
             </div>
@@ -671,7 +675,7 @@
       </div>
 
       <!-- 4 Course Cards Grid (1 cột trên mobile, 2 trên tablet, 4 trên desktop) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div id="courses-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
 
         <!-- Course 1: Cơ bản -->
         <div class="clean-card overflow-hidden flex flex-col justify-between scroll-reveal reveal-delay-1 group">

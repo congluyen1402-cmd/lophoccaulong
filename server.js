@@ -29,7 +29,9 @@ const DIRS = [
   path.join(__dirname, 'data'),
   path.join(__dirname, 'uploads'),
   path.join(__dirname, 'uploads', 'achievements'),
-  path.join(__dirname, 'uploads', 'blog')
+  path.join(__dirname, 'uploads', 'blog'),
+  path.join(__dirname, 'uploads', 'courses'),
+  path.join(__dirname, 'uploads', 'hero')
 ];
 DIRS.forEach(dir => {
   if (!fs.existsSync(dir)) {
@@ -127,7 +129,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Cấu hình Multer upload file tuyệt đối an toàn
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const folder = req.query.folder === 'blog' ? 'blog' : 'achievements';
+    let folder = 'achievements';
+    if (req.query.folder === 'blog') folder = 'blog';
+    else if (req.query.folder === 'courses') folder = 'courses';
+    else if (req.query.folder === 'hero') folder = 'hero';
     const dest = path.join(__dirname, 'uploads', folder);
     cb(null, dest);
   },
@@ -408,6 +413,126 @@ app.post('/api/achievements/reorder', requireAdmin, (req, res) => {
 
   writeJson('achievements.json', reordered);
   res.json({ success: true, message: 'Cập nhật thứ tự thành tích thành công!', count: reordered.length });
+});
+
+// =================================================================
+// 6.1 COURSES (CÁC KHÓA HỌC CẦU LÔNG - HÌNH 1)
+// =================================================================
+app.get('/api/courses', (req, res) => {
+  const courses = readJson('courses.json', []);
+  res.json({ success: true, count: courses.length, data: courses });
+});
+
+app.put('/api/courses/:id', requireAdmin, upload.single('imageFile'), (req, res) => {
+  const courses = readJson('courses.json', []);
+  const idx = courses.findIndex(c => c.id === req.params.id);
+  if (idx === -1) {
+    return res.status(404).json({ success: false, message: 'Không tìm thấy khóa học!' });
+  }
+
+  const body = req.body;
+  let imageUrl = courses[idx].image;
+  if (req.file) {
+    imageUrl = `/uploads/courses/${req.file.filename}`;
+  } else if (body.imageUrl) {
+    imageUrl = sanitizeInput(body.imageUrl);
+  }
+
+  let features = courses[idx].features;
+  if (body.features !== undefined) {
+    if (Array.isArray(body.features)) {
+      features = body.features.map(f => sanitizeInput(f)).filter(Boolean);
+    } else if (typeof body.features === 'string') {
+      features = body.features.split('\n').map(f => sanitizeInput(f.replace(/^[•\-✓\*\s]+/, ''))).filter(Boolean);
+    }
+  }
+
+  courses[idx] = {
+    ...courses[idx],
+    title: body.title !== undefined ? sanitizeInput(body.title) : courses[idx].title,
+    badge: body.badge !== undefined ? sanitizeInput(body.badge) : courses[idx].badge,
+    summary: body.summary !== undefined ? sanitizeInput(body.summary) : courses[idx].summary,
+    image: imageUrl,
+    imagePosition: body.imagePosition !== undefined ? sanitizeInput(body.imagePosition) : (courses[idx].imagePosition || 'center 20%'),
+    imageFit: body.imageFit !== undefined ? sanitizeInput(body.imageFit) : (courses[idx].imageFit || 'cover'),
+    features: features,
+    actionTag: body.actionTag !== undefined ? sanitizeInput(body.actionTag) : courses[idx].actionTag
+  };
+
+  writeJson('courses.json', courses);
+  res.json({ success: true, message: 'Cập nhật khóa học thành công!', data: courses[idx] });
+});
+
+app.post('/api/courses/reorder', requireAdmin, (req, res) => {
+  const { ids } = req.body;
+  if (!Array.isArray(ids)) {
+    return res.status(400).json({ success: false, message: 'Dữ liệu ids không hợp lệ!' });
+  }
+
+  const courses = readJson('courses.json', []);
+  const map = new Map(courses.map(c => [c.id, c]));
+
+  const reordered = [];
+  ids.forEach(id => {
+    if (map.has(id)) {
+      reordered.push(map.get(id));
+      map.delete(id);
+    }
+  });
+
+  for (const remaining of map.values()) {
+    reordered.push(remaining);
+  }
+
+  writeJson('courses.json', reordered);
+  res.json({ success: true, message: 'Cập nhật thứ tự khóa học thành công!', count: reordered.length });
+});
+
+// =================================================================
+// 6.2 HERO BANNER (HÌNH ẢNH & CẤU HÌNH BANNER TRANG CHỦ - HÌNH 2)
+// =================================================================
+app.get('/api/hero', (req, res) => {
+  const config = readJson('site_config.json', {
+    heroImage: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=1000&q=80',
+    heroImagePosition: 'center 25%',
+    heroImageFit: 'cover',
+    badgeSub: 'Sân tập tiêu chuẩn',
+    badgeTitle: 'Thảm PVC chống trượt BWF',
+    badgeLocation: 'Q4 • Q7'
+  });
+  res.json({ success: true, data: config });
+});
+
+app.put('/api/hero', requireAdmin, upload.single('heroImageFile'), (req, res) => {
+  const current = readJson('site_config.json', {
+    heroImage: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=1000&q=80',
+    heroImagePosition: 'center 25%',
+    heroImageFit: 'cover',
+    badgeSub: 'Sân tập tiêu chuẩn',
+    badgeTitle: 'Thảm PVC chống trượt BWF',
+    badgeLocation: 'Q4 • Q7'
+  });
+
+  const body = req.body;
+  let heroImage = current.heroImage;
+  if (req.file) {
+    heroImage = `/uploads/hero/${req.file.filename}`;
+  } else if (body.heroImageUrl) {
+    heroImage = sanitizeInput(body.heroImageUrl);
+  }
+
+  const updated = {
+    ...current,
+    heroImage: heroImage,
+    heroImagePosition: body.heroImagePosition !== undefined ? sanitizeInput(body.heroImagePosition) : (current.heroImagePosition || 'center 25%'),
+    heroImageFit: body.heroImageFit !== undefined ? sanitizeInput(body.heroImageFit) : (current.heroImageFit || 'cover'),
+    badgeSub: body.badgeSub !== undefined ? sanitizeInput(body.badgeSub) : current.badgeSub,
+    badgeTitle: body.badgeTitle !== undefined ? sanitizeInput(body.badgeTitle) : current.badgeTitle,
+    badgeLocation: body.badgeLocation !== undefined ? sanitizeInput(body.badgeLocation) : current.badgeLocation
+  };
+
+  writeJson('site_config.json', updated);
+  res.json({ success: true, message: 'Cập nhật cấu hình Hero Banner thành công!', data: updated });
 });
 
 // =================================================================

@@ -1,0 +1,66 @@
+[
+  {
+    "id": "co-ban",
+    "title": "Khóa Cầu Lông Cơ Bản",
+    "badge": "🌱 Cho người mới 100%",
+    "summary": "Học từ con số 0, chuẩn phom tay và bộ pháp.",
+    "image": "https://images.unsplash.com/photo-1613918108466-292b78a8ef95?auto=format&fit=crop&w=600&q=80",
+    "imagePosition": "center 20%",
+    "imageFit": "cover",
+    "features": [
+      "Cách cầm vợt thuận / trái tay",
+      "Giao cầu bổng & giao cầu ngắn",
+      "Phông cầu bổng cuối sân nhẹ nhàng",
+      "Bộ pháp di chuyển bước chân BWF"
+    ],
+    "actionTag": "co-ban"
+  },
+  {
+    "id": "nang-cao",
+    "title": "Nâng Cao & Chiến Thuật",
+    "badge": "⚡ Nâng cao & Đôi",
+    "summary": "Gia tăng lực đập cầu và sự phối hợp đánh đôi.",
+    "image": "https://images.unsplash.com/photo-1599474924187-334a4ae5bd3c?auto=format&fit=crop&w=600&q=80",
+    "imagePosition": "center 20%",
+    "imageFit": "cover",
+    "features": [
+      "Đập cầu (Smash) uy lực cắm sâu",
+      "Phản tạt nhanh & tì đè lưới",
+      "Phòng thủ gài lưới thoát ép",
+      "Luân chuyển chiến thuật đôi Nam/Nữ"
+    ],
+    "actionTag": "nang-cao"
+  },
+  {
+    "id": "tre-em",
+    "title": "Khóa Cầu Lông Trẻ Em",
+    "badge": "👦 6 - 15 tuổi",
+    "summary": "Phát triển chiều cao và phản xạ linh hoạt.",
+    "image": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&q=80",
+    "imagePosition": "center 20%",
+    "imageFit": "cover",
+    "features": [
+      "Tăng chiều cao & sức bền dẻo dai",
+      "Giảm thời gian dán mắt vào màn hình",
+      "Hình thành tính kỷ luật thể thao",
+      "Không khí tập luyện vui vẻ, bổ ích"
+    ],
+    "actionTag": "tre-em"
+  },
+  {
+    "id": "1-1",
+    "title": "Kèm Riêng 1-1 & Doanh Nghiệp",
+    "badge": "👑 Kèm 1-1 / Nhóm",
+    "summary": "Lịch trình và sân tập linh hoạt 100%.",
+    "image": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=600&q=80",
+    "imagePosition": "center 20%",
+    "imageFit": "cover",
+    "features": [
+      "HLV kèm riêng sát từng buổi tập",
+      "Tự do chọn khung giờ theo lịch rảnh",
+      "Tùy chọn sân tập mong muốn ở Q4/Q7",
+      "Tiến bộ nhanh gấp 2 - 3 lần"
+    ],
+    "actionTag": "1-1"
+  }
+]

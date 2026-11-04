@@ -161,6 +161,12 @@
       <button class="tab-btn active px-4 py-2.5 rounded-xl font-semibold text-sm transition flex items-center gap-2" data-tab="tab-achievements">
         <i data-lucide="award" class="w-4 h-4"></i> Thành Tích Học Viên
       </button>
+      <button class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-200 transition flex items-center gap-2" data-tab="tab-courses">
+        <i data-lucide="book-open" class="w-4 h-4"></i> Các Khóa Học (Hình 1)
+      </button>
+      <button class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-200 transition flex items-center gap-2" data-tab="tab-hero">
+        <i data-lucide="image" class="w-4 h-4"></i> Ảnh Hero Banner (Hình 2)
+      </button>
       <button class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-200 transition flex items-center gap-2" data-tab="tab-blog">
         <i data-lucide="edit-3" class="w-4 h-4"></i> Quản Lý Blog SEO
       </button>
@@ -331,6 +337,299 @@
 
           <div id="achievements-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Render dynamically -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= TAB: QUẢN LÝ CÁC KHÓA HỌC (HÌNH 1) ================= -->
+    <div id="tab-courses" class="tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- FORM CHỈNH SỬA KHÓA HỌC -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sticky top-24">
+            <div class="flex items-center justify-between mb-1">
+              <h3 id="course-form-title" class="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm">📚</span>
+                Chỉnh Sửa Khóa Học
+              </h3>
+              <button type="button" id="btn-cancel-course" class="hidden px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                Hủy
+              </button>
+            </div>
+            <p id="course-form-subtitle" class="text-xs text-slate-500 mb-5">Chọn nút "Sửa" ở danh sách bên phải để nạp khóa học cần đổi ảnh hoặc nội dung.</p>
+
+            <form id="form-edit-course" class="space-y-4">
+              <input type="hidden" id="course-id" value="">
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tên khóa học <span class="text-red-500">*</span></label>
+                <input type="text" id="course-title" required placeholder="VD: Khóa Cầu Lông Cơ Bản"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Huy hiệu / Tag nổi bật</label>
+                <input type="text" id="course-badge" placeholder="VD: 🌱 Cho người mới 100%"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Mô tả ngắn</label>
+                <input type="text" id="course-summary" placeholder="VD: Học từ con số 0, chuẩn phom tay và bộ pháp."
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Nội dung học (Mỗi dòng 1 ý gạch đầu dòng ✓)</label>
+                <textarea id="course-features" rows="4" placeholder="Cách cầm vợt thuận / trái tay&#10;Giao cầu bổng & giao cầu ngắn&#10;Phông cầu bổng cuối sân nhẹ nhàng&#10;Bộ pháp di chuyển bước chân BWF"
+                          class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs font-mono"></textarea>
+              </div>
+
+              <!-- UPLOAD ẢNH KHÓA HỌC & CĂN CHỈNH KHUNG HÌNH -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Hình ảnh khóa học <span class="text-red-500">*</span></label>
+                <div class="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-xl p-3.5 text-center cursor-pointer transition bg-slate-50 hover:bg-emerald-50/50" id="course-dropzone">
+                  <input type="file" id="course-file-input" accept="image/*" class="hidden">
+                  <div id="course-preview-container" class="hidden mb-2">
+                    <div class="relative h-44 rounded-xl overflow-hidden bg-slate-900 border border-slate-300 shadow-inner">
+                      <img id="course-preview-img" src="" alt="Preview" class="w-full h-full object-cover transition-all duration-150">
+                      <span class="absolute top-2 right-2 text-[10px] bg-slate-900/80 text-white px-2 py-0.5 rounded font-mono">Khung ngắm khóa học</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1" id="course-file-name"></p>
+                  </div>
+                  <div id="course-upload-prompt" class="space-y-1">
+                    <i data-lucide="upload-cloud" class="w-8 h-8 text-slate-400 mx-auto"></i>
+                    <p class="text-xs font-medium text-slate-700">Bấm để tải ảnh đại diện khóa học lên</p>
+                    <p class="text-[11px] text-slate-400">JPG, PNG, WEBP</p>
+                  </div>
+                </div>
+                <div class="mt-2">
+                  <span class="text-[11px] text-slate-400">Hoặc dán URL ảnh nếu có:</span>
+                  <input type="url" id="course-image-url" placeholder="https://..."
+                         class="w-full mt-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
+                </div>
+
+                <!-- CĂN CHỈNH KHUNG HÌNH KHÓA HỌC -->
+                <div id="course-framing-box" class="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-xl space-y-2.5 mt-2.5">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <i data-lucide="crop" class="w-3.5 h-3.5 text-emerald-600"></i> Căn Chỉnh Khung Hình (Tránh Cắt Mặt)
+                    </label>
+                    <span id="course-pos-label" class="text-[11px] font-mono text-emerald-700 font-bold bg-white px-2 py-0.5 rounded border border-emerald-200">Căn mặt (20%)</span>
+                  </div>
+                  
+                  <div class="grid grid-cols-3 gap-1.5 text-xs">
+                    <button type="button" class="course-pos-preset px-2 py-1.5 rounded-lg border border-emerald-400 bg-white font-bold text-emerald-700 hover:bg-emerald-100/50 transition text-center text-[11px]" data-val="20%">
+                      👤 Lấy rõ mặt
+                    </button>
+                    <button type="button" class="course-pos-preset px-2 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 hover:border-emerald-500 transition text-center text-[11px]" data-val="50%">
+                      🎯 Căn giữa
+                    </button>
+                    <button type="button" class="course-pos-preset px-2 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 hover:border-emerald-500 transition text-center text-[11px]" data-val="80%">
+                      🔻 Căn dưới
+                    </button>
+                  </div>
+
+                  <div>
+                    <div class="flex justify-between text-[10px] text-slate-500 mb-1">
+                      <span>Đỉnh ảnh (0% - Giữ mặt)</span>
+                      <span>Đáy ảnh (100%)</span>
+                    </div>
+                    <input type="range" id="course-pos-slider" min="0" max="100" value="20"
+                           class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                    <input type="hidden" id="course-image-position" value="center 20%">
+                  </div>
+
+                  <div class="flex items-center justify-between pt-1 text-[11px]">
+                    <span class="text-slate-600 font-medium">Kiểu hiển thị:</span>
+                    <select id="course-image-fit" class="text-xs rounded-lg border border-slate-200 px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                      <option value="cover">Lấp đầy khung (Cover)</option>
+                      <option value="contain">Hiện trọn vẹn 100% (Contain - Không cắt)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex gap-2">
+                <button type="submit" id="btn-save-course"
+                        class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition flex items-center justify-center gap-2 shadow-md">
+                  <i data-lucide="check" class="w-4 h-4"></i> Lưu Khóa Học
+                </button>
+                <button type="button" id="btn-cancel-course-bottom" class="hidden px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl text-xs">
+                  Hủy
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- DANH SÁCH CÁC KHÓA HỌC (KÉO THẢ SẮP XẾP) -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-lg font-bold font-heading text-slate-900">Danh Sách Khóa Học (<span id="courses-count-badge">0</span>)</h3>
+              <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-xs">
+                <i data-lucide="move" class="w-3 h-3"></i> Kéo thả chuột để đổi vị trí
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="courses-reorder-status" class="text-xs font-semibold text-emerald-600 hidden"></span>
+              <button id="btn-refresh-courses" class="text-xs font-semibold text-slate-600 hover:text-emerald-600 flex items-center gap-1">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Làm mới
+              </button>
+            </div>
+          </div>
+
+          <div id="courses-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Render dynamically -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= TAB: CẤU HÌNH HERO BANNER (HÌNH 2) ================= -->
+    <div id="tab-hero" class="tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- FORM CẤU HÌNH ẢNH & THẺ NỔI HERO -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm">🖼️</span>
+              Cấu Hình Ảnh Hero Banner (Hình 2)
+            </h3>
+          </div>
+          <p class="text-xs text-slate-500 mb-5">Thay đổi hình ảnh vận động viên/sân tập nổi bật nhất ở đầu website và điều chỉnh góc chụp, nội dung thẻ nổi.</p>
+
+          <form id="form-hero-config" class="space-y-4">
+            
+            <!-- UPLOAD ẢNH HERO & CĂN CHỈNH -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Hình ảnh Hero Banner chính <span class="text-red-500">*</span></label>
+              <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-3.5 text-center cursor-pointer transition bg-slate-50 hover:bg-blue-50/50" id="hero-dropzone">
+                <input type="file" id="hero-file-input" accept="image/*" class="hidden">
+                <div id="hero-preview-container" class="mb-2">
+                  <div class="relative h-60 rounded-2xl overflow-hidden bg-slate-900 border border-slate-300 shadow-inner">
+                    <img id="hero-preview-img" src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=1000&q=80" alt="Preview Hero" class="w-full h-full object-cover transition-all duration-150">
+                    <span class="absolute top-2 right-2 text-[10px] bg-slate-900/80 text-white px-2 py-0.5 rounded font-mono">Khung banner Hero</span>
+                  </div>
+                  <p class="text-xs text-slate-500 mt-1" id="hero-file-name">Bấm để tải ảnh mới hoặc dán URL bên dưới</p>
+                </div>
+              </div>
+              <div class="mt-2">
+                <span class="text-[11px] text-slate-400">Hoặc dán URL ảnh mạng:</span>
+                <input type="url" id="hero-image-url" placeholder="https://..."
+                       class="w-full mt-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
+              </div>
+
+              <!-- CĂN CHỈNH KHUNG HÌNH HERO (FRAMING) -->
+              <div id="hero-framing-box" class="p-3 bg-blue-50/60 border border-blue-200/80 rounded-xl space-y-2.5 mt-2.5">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <i data-lucide="crop" class="w-3.5 h-3.5 text-blue-600"></i> Căn Chỉnh Khung Hình Banner
+                  </label>
+                  <span id="hero-pos-label" class="text-[11px] font-mono text-blue-700 font-bold bg-white px-2 py-0.5 rounded border border-blue-200">Căn giữa (25%)</span>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-1.5 text-xs">
+                  <button type="button" class="hero-pos-preset px-2 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 hover:border-blue-500 transition text-center text-[11px]" data-val="15%">
+                    👤 Lấy rõ mặt (15%)
+                  </button>
+                  <button type="button" class="hero-pos-preset px-2 py-1.5 rounded-lg border border-blue-500 bg-white font-bold text-blue-700 hover:bg-blue-100/50 transition text-center text-[11px]" data-val="25%">
+                    🎯 Chuẩn mẫu (25%)
+                  </button>
+                  <button type="button" class="hero-pos-preset px-2 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 hover:border-blue-500 transition text-center text-[11px]" data-val="60%">
+                    🔻 Căn thấp (60%)
+                  </button>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-[10px] text-slate-500 mb-1">
+                    <span>Đỉnh ảnh (0% - Giữ mặt)</span>
+                    <span>Đáy ảnh (100%)</span>
+                  </div>
+                  <input type="range" id="hero-pos-slider" min="0" max="100" value="25"
+                         class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                  <input type="hidden" id="hero-image-position" value="center 25%">
+                </div>
+
+                <div class="flex items-center justify-between pt-1 text-[11px]">
+                  <span class="text-slate-600 font-medium">Kiểu hiển thị:</span>
+                  <select id="hero-image-fit" class="text-xs rounded-lg border border-slate-200 px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <option value="cover">Lấp đầy khung (Cover - Sang trọng)</option>
+                    <option value="contain">Hiện trọn vẹn 100% (Contain - Không cắt)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- THẺ NỔI TRÊN ẢNH (FLOATING BADGE) -->
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+              <label class="text-xs font-bold text-slate-800 uppercase block">Thẻ Thông Tin Nổi Trên Ảnh (Floating Badge)</label>
+              
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Dòng chữ nhỏ trên (Subtitle)</label>
+                <input type="text" id="hero-badge-sub" value="Sân tập tiêu chuẩn"
+                       class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tiêu đề thẻ nổi (Title)</label>
+                <input type="text" id="hero-badge-title" value="Thảm PVC chống trượt BWF"
+                       class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tag địa điểm / ghi chú bên phải</label>
+                <input type="text" id="hero-badge-loc" value="Q4 • Q7"
+                       class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
+              </div>
+            </div>
+
+            <button type="submit" id="btn-save-hero"
+                    class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition flex items-center justify-center gap-2 shadow-md">
+              <i data-lucide="save" class="w-4 h-4"></i> Lưu Cấu Hình Hero Banner
+            </button>
+          </form>
+        </div>
+
+        <!-- MÔ PHỎNG HIỂN THỊ THỰC TẾ TRÊN LANDING PAGE -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <i data-lucide="eye" class="w-4 h-4 text-emerald-600"></i> Mô Phỏng Hiển Thị Trên Trang Chủ
+              </h4>
+              <span class="text-[11px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Trực tiếp (Live)</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Hình ảnh này sẽ xuất hiện ngay đầu trang chủ khi khách hàng vừa truy cập website.</p>
+
+            <div class="relative rounded-3xl overflow-hidden shadow-xl border-4 border-slate-100 bg-slate-900 aspect-[4/5] max-w-sm mx-auto">
+              <img id="hero-mockup-img" src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=1000&q=80" alt="Mockup"
+                   style="object-position: center 25%; object-fit: cover;"
+                   class="w-full h-full object-cover transition-all duration-200">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
+
+              <div class="absolute bottom-4 left-4 right-4 p-3 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-lg flex items-center justify-between">
+                <div>
+                  <span id="hero-mockup-badge-sub" class="text-[10px] font-bold text-court-600 uppercase tracking-wider block">Sân tập tiêu chuẩn</span>
+                  <p id="hero-mockup-badge-title" class="font-heading font-bold text-slate-900 text-xs">Thảm PVC chống trượt BWF</p>
+                </div>
+                <span id="hero-mockup-badge-loc" class="sport-tag bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded-md">
+                  Q4 • Q7
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100 text-center">
+            <a href="/" target="_blank" class="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-800 font-semibold">
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Mở trang chủ để xem thực tế
+            </a>
           </div>
         </div>
 

@@ -36,6 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initCourseSelectCTA();
   initRegistrationForm();
   initAchievementsLoader();
+  initCoursesLoader();
+  initHeroLoader();
   initScrollReveal();
   initSmoothScroll();
   initFloatingButtons();
@@ -414,6 +416,120 @@ async function initAchievementsLoader() {
   } catch (err) {
     // Graceful fallback to pre-rendered HTML cards
   }
+}
+
+// =================================================================
+// 9.2 TỰ ĐỘNG ĐỒNG BỘ KHÓA HỌC TỪ BACKEND (HÌNH 1)
+// =================================================================
+async function initCoursesLoader() {
+  const container = document.getElementById('courses-grid');
+  if (!container) return;
+
+  try {
+    let list = [];
+    const res = await fetch('/api/courses');
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        list = json.data;
+      }
+    }
+
+    if (list.length === 0) {
+      const resLocal = await fetch('data/courses.json');
+      if (resLocal.ok) {
+        list = await resLocal.json();
+      }
+    }
+
+    if (list.length > 0) {
+      container.innerHTML = list.map((c, idx) => `
+        <div class="clean-card overflow-hidden flex flex-col justify-between scroll-reveal reveal-delay-${(idx % 4) + 1} group">
+          <div>
+            <div class="h-40 sm:h-44 overflow-hidden bg-slate-900 relative">
+              <img src="${c.image}"
+                   alt="${c.title}"
+                   loading="lazy"
+                   style="object-position: ${c.imagePosition || 'center 20%'}; object-fit: ${c.imageFit || 'cover'};"
+                   class="w-full h-full group-hover:scale-105 transition-transform duration-500"
+                   onerror="this.src='https://images.unsplash.com/photo-1613918108466-292b78a8ef95?auto=format&fit=crop&w=600&q=80'">
+              <span class="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-slate-900 font-heading font-bold text-[11px] px-2.5 py-1 rounded-lg shadow-sm">
+                ${c.badge || 'Khóa học'}
+              </span>
+            </div>
+            <div class="p-5 sm:p-6">
+              <h3 class="font-heading font-extrabold text-base sm:text-lg text-slate-900 mb-1.5">${c.title}</h3>
+              <p class="text-slate-500 text-xs sm:text-sm mb-3.5">${c.summary || ''}</p>
+              <ul class="space-y-2 text-xs sm:text-sm text-slate-600 mb-4 sm:mb-6">
+                ${(c.features || []).map(f => `
+                  <li class="flex items-center gap-2"><span class="text-court-600">✓</span> ${f}</li>
+                `).join('')}
+              </ul>
+            </div>
+          </div>
+          <div class="p-5 sm:p-6 pt-0">
+            <button data-select-course="${c.actionTag || 'co-ban'}" class="btn-primary-sport w-full text-center">
+              Nhận tư vấn khóa này
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      // Gắn lại sự kiện chọn khóa học vào form đăng ký
+      initCourseSelectCTA();
+    }
+  } catch (err) {}
+}
+
+// =================================================================
+// 9.3 TỰ ĐỘNG ĐỒNG BỘ HERO BANNER TỪ BACKEND (HÌNH 2)
+// =================================================================
+async function initHeroLoader() {
+  try {
+    let hero = null;
+    const res = await fetch('/api/hero');
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) {
+        hero = json.data;
+      }
+    }
+
+    if (!hero) {
+      const resLocal = await fetch('data/site_config.json');
+      if (resLocal.ok) {
+        hero = await resLocal.json();
+      }
+    }
+
+    if (hero && hero.heroImage) {
+      const mobileImg = document.getElementById('mobile-hero-img');
+      const desktopImg = document.getElementById('desktop-hero-img');
+      const pos = hero.heroImagePosition || 'center 25%';
+      const fit = hero.heroImageFit || 'cover';
+
+      if (mobileImg) {
+        mobileImg.src = hero.heroImage;
+        mobileImg.style.objectPosition = pos;
+        mobileImg.style.objectFit = fit;
+      }
+      if (desktopImg) {
+        desktopImg.src = hero.heroImage;
+        desktopImg.style.objectPosition = pos;
+        desktopImg.style.objectFit = fit;
+      }
+
+      if (hero.badgeSub) {
+        document.querySelectorAll('.hero-badge-sub').forEach(el => el.textContent = hero.badgeSub);
+      }
+      if (hero.badgeTitle) {
+        document.querySelectorAll('.hero-badge-title').forEach(el => el.textContent = hero.badgeTitle);
+      }
+      if (hero.badgeLocation) {
+        document.querySelectorAll('.hero-badge-loc').forEach(el => el.textContent = hero.badgeLocation);
+      }
+    }
+  } catch (err) {}
 }
 
 function showToast(type, message, showQuickActions = false) {

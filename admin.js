@@ -8,6 +8,8 @@ const API_BASE = window.location.origin.includes('localhost') || window.location
 
 let AUTH_TOKEN = localStorage.getItem('caulong_admin_token') || '';
 let achievementsData = [];
+let coursesData = [];
+let heroConfig = {};
 let postsData = [];
 let leadsData = [];
 
@@ -124,11 +126,16 @@ tabButtons.forEach(btn => {
 // --------------------------------------------------------------
 function initDashboard() {
   loadAchievements();
+  loadCourses();
+  loadHeroConfig();
   loadPosts();
   loadLeads();
   setupImageDropzones();
+  setupCourseDropzone();
+  setupHeroDropzoneAndFraming();
   setupPostEditor();
   setupFramingControls();
+  setupCourseFramingControls();
   setupChangePassword();
 }
 
@@ -446,6 +453,611 @@ formAddAch.addEventListener('submit', async (e) => {
 });
 
 document.getElementById('btn-refresh-ach').addEventListener('click', loadAchievements);
+
+// --------------------------------------------------------------
+// 1.1 COURSES MANAGEMENT (QUẢN LÝ CÁC KHÓA HỌC - HÌNH 1)
+// --------------------------------------------------------------
+const coursesListContainer = document.getElementById('courses-list');
+const coursesCountBadge = document.getElementById('courses-count-badge');
+const formEditCourse = document.getElementById('form-edit-course');
+
+async function loadCourses() {
+  try {
+    const res = await fetch('/api/courses');
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      coursesData = json.data;
+      renderCourses();
+    }
+  } catch (err) {
+    try {
+      const resLocal = await fetch('data/courses.json');
+      coursesData = await resLocal.json();
+      renderCourses();
+    } catch (e) {
+      if (coursesListContainer) coursesListContainer.innerHTML = '<p class="text-xs text-red-500">Chưa tải được danh sách khóa học.</p>';
+    }
+  }
+}
+
+function renderCourses() {
+  if (!coursesListContainer) return;
+  if (coursesCountBadge) coursesCountBadge.textContent = coursesData.length;
+
+  if (coursesData.length === 0) {
+    coursesListContainer.innerHTML = `
+      <div class="col-span-2 py-12 text-center bg-white rounded-2xl border border-slate-200">
+        <i data-lucide="book-open" class="w-12 h-12 text-slate-300 mx-auto mb-2"></i>
+        <p class="text-sm font-semibold text-slate-600">Chưa có khóa học nào</p>
+      </div>
+    `;
+    refreshIcons();
+    return;
+  }
+
+  coursesListContainer.innerHTML = coursesData.map((c, index) => `
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col group hover:border-emerald-500/50 hover:shadow-md transition relative course-item select-none" data-id="${c.id}">
+      <div class="relative h-44 bg-slate-900 overflow-hidden">
+        <img src="${c.image}" alt="${c.title}"
+             style="object-position: ${c.imagePosition || 'center 20%'}; object-fit: ${c.imageFit || 'cover'};"
+             class="w-full h-full group-hover:scale-105 transition duration-500 pointer-events-none"
+             onerror="this.src='https://images.unsplash.com/photo-1613918108466-292b78a8ef95?auto=format&fit=crop&w=600&q=80'">
+        
+        <div class="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-slate-900 font-bold text-[11px] px-2.5 py-1 rounded-lg shadow-sm pointer-events-none">
+          ${c.badge || 'Khóa học'}
+        </div>
+
+        <!-- Drag Handle -->
+        <div class="course-drag-handle absolute top-3 right-3 bg-slate-900/80 hover:bg-emerald-600 text-white px-2 py-1 rounded-lg shadow-md cursor-grab active:cursor-grabbing flex items-center gap-1 text-[11px] font-semibold transition z-10" title="Kéo để đổi thứ tự">
+          <i data-lucide="grip-vertical" class="w-3.5 h-3.5"></i>
+          <span>Kéo</span>
+        </div>
+      </div>
+      <div class="p-4 flex-1 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <h4 class="font-bold font-heading text-slate-900 text-base">${c.title}</h4>
+            <span class="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">#${index + 1}</span>
+          </div>
+          <p class="text-xs text-slate-500 mb-2.5 line-clamp-1">${c.summary || ''}</p>
+          <ul class="text-[11px] text-slate-600 space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-100 mb-3">
+            ${(c.features || []).slice(0, 3).map(f => `<li class="truncate flex items-center gap-1"><span class="text-emerald-600 font-bold">✓</span> ${f}</li>`).join('')}
+            ${(c.features || []).length > 3 ? `<li class="text-[10px] text-slate-400 italic">+${c.features.length - 3} nội dung khác</li>` : ''}
+          </ul>
+        </div>
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-[11px] text-slate-400 font-mono">${c.actionTag || c.id}</span>
+          <button onclick="editCourse('${c.id}')"
+                  class="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 hover:bg-blue-50 px-3 py-1 rounded-lg transition border border-blue-200 hover:border-blue-400" title="Chỉnh sửa khóa này">
+            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Sửa Khóa Này
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  setupSortableCourses();
+  refreshIcons();
+}
+
+function editCourse(id) {
+  const c = coursesData.find(item => item.id === id);
+  if (!c) return;
+
+  document.getElementById('course-id').value = c.id;
+  document.getElementById('course-title').value = c.title || '';
+  document.getElementById('course-badge').value = c.badge || '';
+  document.getElementById('course-summary').value = c.summary || '';
+  document.getElementById('course-features').value = Array.isArray(c.features) ? c.features.join('\n') : (c.features || '');
+  document.getElementById('course-image-url').value = (c.image && c.image.startsWith('http')) ? c.image : '';
+
+  // Framing
+  const pos = c.imagePosition || 'center 20%';
+  document.getElementById('course-image-position').value = pos;
+  const match = pos.match(/(\d+)%/);
+  const numVal = match ? parseInt(match[1]) : 20;
+  const slider = document.getElementById('course-pos-slider');
+  if (slider) slider.value = numVal;
+  const label = document.getElementById('course-pos-label');
+  if (label) label.textContent = `Vị trí (${numVal}%)`;
+  const fitSelect = document.getElementById('course-image-fit');
+  if (fitSelect) fitSelect.value = c.imageFit || 'cover';
+
+  // Preview
+  const previewImg = document.getElementById('course-preview-img');
+  if (previewImg) {
+    previewImg.src = c.image;
+    previewImg.style.objectPosition = pos;
+    previewImg.style.objectFit = c.imageFit || 'cover';
+  }
+  document.getElementById('course-preview-container').classList.remove('hidden');
+  document.getElementById('course-upload-prompt').classList.add('hidden');
+  document.getElementById('course-file-name').textContent = 'Ảnh hiện tại (Bấm trên để thay ảnh mới)';
+
+  // UI state
+  document.getElementById('course-form-title').innerHTML = `<span class="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm">✏️</span> Sửa: ${c.title}`;
+  document.getElementById('course-form-subtitle').textContent = 'Thay đổi hình ảnh, huy hiệu, mô tả hoặc điểm nổi bật của khóa này.';
+  document.getElementById('btn-save-course').innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Cập Nhật Khóa Học`;
+  document.getElementById('btn-cancel-course').classList.remove('hidden');
+  document.getElementById('btn-cancel-course-bottom').classList.remove('hidden');
+
+  // Highlight preset
+  const presets = document.querySelectorAll('.course-pos-preset');
+  presets.forEach(btn => {
+    const bVal = parseInt(btn.dataset.val, 10);
+    if (bVal === numVal) {
+      btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'font-bold');
+      btn.classList.remove('border-slate-200', 'text-slate-700');
+    } else {
+      btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'font-bold');
+      btn.classList.add('border-slate-200', 'text-slate-700');
+    }
+  });
+
+  window.scrollTo({ top: formEditCourse.offsetTop - 90, behavior: 'smooth' });
+  refreshIcons();
+}
+
+function cancelCourseEdit() {
+  if (!formEditCourse) return;
+  formEditCourse.reset();
+  document.getElementById('course-id').value = '';
+  document.getElementById('course-image-position').value = 'center 20%';
+  const slider = document.getElementById('course-pos-slider');
+  if (slider) slider.value = 20;
+  const label = document.getElementById('course-pos-label');
+  if (label) label.textContent = 'Căn mặt (20%)';
+  const fitSelect = document.getElementById('course-image-fit');
+  if (fitSelect) fitSelect.value = 'cover';
+
+  document.getElementById('course-preview-container').classList.add('hidden');
+  document.getElementById('course-upload-prompt').classList.remove('hidden');
+  document.getElementById('course-file-input').value = '';
+
+  document.getElementById('course-form-title').innerHTML = `<span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm">📚</span> Chỉnh Sửa Khóa Học`;
+  document.getElementById('course-form-subtitle').textContent = 'Chọn nút "Sửa" ở danh sách bên phải để nạp khóa học cần đổi ảnh hoặc nội dung.';
+  document.getElementById('btn-save-course').innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Lưu Khóa Học`;
+  document.getElementById('btn-cancel-course').classList.add('hidden');
+  document.getElementById('btn-cancel-course-bottom').classList.add('hidden');
+  refreshIcons();
+}
+
+const btnCancelCourse = document.getElementById('btn-cancel-course');
+if (btnCancelCourse) btnCancelCourse.addEventListener('click', cancelCourseEdit);
+const btnCancelCourseBottom = document.getElementById('btn-cancel-course-bottom');
+if (btnCancelCourseBottom) btnCancelCourseBottom.addEventListener('click', cancelCourseEdit);
+
+if (formEditCourse) {
+  formEditCourse.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const courseId = document.getElementById('course-id').value;
+    if (!courseId) {
+      alert('Vui lòng chọn một khóa học ở danh sách bên phải bằng nút "Sửa" để cập nhật!');
+      return;
+    }
+
+    const btn = document.getElementById('btn-save-course');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="animate-spin inline-block mr-2">🔄</span> Đang lưu...`;
+
+    const formData = new FormData();
+    formData.append('title', document.getElementById('course-title').value.trim());
+    formData.append('badge', document.getElementById('course-badge').value.trim());
+    formData.append('summary', document.getElementById('course-summary').value.trim());
+    formData.append('features', document.getElementById('course-features').value.trim());
+    formData.append('imageUrl', document.getElementById('course-image-url').value.trim());
+    formData.append('imagePosition', document.getElementById('course-image-position').value || 'center 20%');
+    formData.append('imageFit', document.getElementById('course-image-fit').value || 'cover');
+
+    const fileInput = document.getElementById('course-file-input');
+    if (fileInput && fileInput.files[0]) {
+      formData.append('imageFile', fileInput.files[0]);
+    }
+
+    try {
+      const res = await fetch(`/api/courses/${courseId}?folder=courses`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Cập nhật khóa học thành công!');
+        cancelCourseEdit();
+        loadCourses();
+      } else {
+        alert(data.message || 'Lỗi khi lưu khóa học!');
+      }
+    } catch (err) {
+      alert('Không thể kết nối máy chủ để lưu khóa học!');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Lưu Khóa Học`;
+      refreshIcons();
+    }
+  });
+}
+
+const btnRefreshCourses = document.getElementById('btn-refresh-courses');
+if (btnRefreshCourses) btnRefreshCourses.addEventListener('click', loadCourses);
+
+let sortableCoursesInstance = null;
+function setupSortableCourses() {
+  const container = document.getElementById('courses-list');
+  if (!container) return;
+
+  if (sortableCoursesInstance) {
+    try { sortableCoursesInstance.destroy(); } catch (e) {}
+    sortableCoursesInstance = null;
+  }
+
+  if (typeof Sortable !== 'undefined') {
+    sortableCoursesInstance = new Sortable(container, {
+      handle: '.course-drag-handle',
+      animation: 200,
+      ghostClass: 'opacity-40',
+      chosenClass: 'scale-[1.02]',
+      dragClass: 'shadow-2xl',
+      onEnd: async function () {
+        const items = Array.from(container.querySelectorAll('.course-item'));
+        const ids = items.map(el => el.dataset.id).filter(Boolean);
+        await saveCoursesOrder(ids);
+      }
+    });
+  } else {
+    setupNativeDragAndDrop(container, '.course-item', '.course-drag-handle', saveCoursesOrder);
+  }
+}
+
+async function saveCoursesOrder(ids) {
+  const statusEl = document.getElementById('courses-reorder-status');
+  if (statusEl) {
+    statusEl.innerHTML = `<span class="animate-spin inline-block mr-1">🔄</span> Đang lưu thứ tự...`;
+    statusEl.classList.remove('hidden');
+  }
+
+  try {
+    const res = await fetch('/api/courses/reorder', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AUTH_TOKEN}`
+      },
+      body: JSON.stringify({ ids })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const map = new Map(coursesData.map(c => [c.id, c]));
+      coursesData = ids.map(id => map.get(id)).filter(Boolean);
+
+      document.querySelectorAll('#courses-list .course-item').forEach((card, idx) => {
+        const badge = card.querySelector('.font-mono');
+        if (badge) badge.textContent = `#${idx + 1}`;
+      });
+
+      if (statusEl) {
+        statusEl.innerHTML = `✅ Đã lưu thứ tự mới!`;
+        setTimeout(() => statusEl.classList.add('hidden'), 2500);
+      }
+    }
+  } catch (err) {
+    if (statusEl) statusEl.textContent = '⚠️ Không thể lưu thứ tự';
+  }
+}
+
+function setupCourseDropzone() {
+  const dropzone = document.getElementById('course-dropzone');
+  const fileInput = document.getElementById('course-file-input');
+  const previewContainer = document.getElementById('course-preview-container');
+  const previewImg = document.getElementById('course-preview-img');
+  const fileName = document.getElementById('course-file-name');
+  const uploadPrompt = document.getElementById('course-upload-prompt');
+
+  if (!dropzone || !fileInput) return;
+
+  dropzone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        previewImg.src = event.target.result;
+        previewImg.style.objectPosition = document.getElementById('course-image-position')?.value || 'center 20%';
+        previewImg.style.objectFit = document.getElementById('course-image-fit')?.value || 'cover';
+        fileName.textContent = file.name;
+        previewContainer.classList.remove('hidden');
+        uploadPrompt.classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+function setupCourseFramingControls() {
+  const slider = document.getElementById('course-pos-slider');
+  const posInput = document.getElementById('course-image-position');
+  const posLabel = document.getElementById('course-pos-label');
+  const fitSelect = document.getElementById('course-image-fit');
+  const previewImg = document.getElementById('course-preview-img');
+  const previewContainer = document.getElementById('course-preview-container');
+  const uploadPrompt = document.getElementById('course-upload-prompt');
+  const imageUrlInput = document.getElementById('course-image-url');
+  const presets = document.querySelectorAll('.course-pos-preset');
+
+  function updateFraming(valPercent) {
+    const num = parseInt(valPercent, 10);
+    const posStr = `center ${num}%`;
+    if (posInput) posInput.value = posStr;
+    if (slider) slider.value = num;
+    if (posLabel) posLabel.textContent = `Vị trí (${num}%)`;
+    if (previewImg) previewImg.style.objectPosition = posStr;
+
+    presets.forEach(btn => {
+      const bVal = parseInt(btn.dataset.val, 10);
+      if (bVal === num) {
+        btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'font-bold');
+        btn.classList.remove('border-slate-200', 'text-slate-700');
+      } else {
+        btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'font-bold');
+        btn.classList.add('border-slate-200', 'text-slate-700');
+      }
+    });
+  }
+
+  if (slider) {
+    slider.addEventListener('input', (e) => updateFraming(e.target.value));
+  }
+
+  presets.forEach(btn => {
+    btn.addEventListener('click', () => updateFraming(btn.dataset.val || '20%'));
+  });
+
+  if (fitSelect) {
+    fitSelect.addEventListener('change', (e) => {
+      if (previewImg) previewImg.style.objectFit = e.target.value;
+    });
+  }
+
+  if (imageUrlInput) {
+    imageUrlInput.addEventListener('input', (e) => {
+      const url = e.target.value.trim();
+      if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
+        if (previewImg) {
+          previewImg.src = url;
+          previewImg.style.objectPosition = posInput ? posInput.value : 'center 20%';
+          previewImg.style.objectFit = fitSelect ? fitSelect.value : 'cover';
+        }
+        if (previewContainer) previewContainer.classList.remove('hidden');
+        if (uploadPrompt) uploadPrompt.classList.add('hidden');
+        const fileName = document.getElementById('course-file-name');
+        if (fileName) fileName.textContent = 'Ảnh từ liên kết';
+      }
+    });
+  }
+}
+
+// --------------------------------------------------------------
+// 1.2 HERO BANNER MANAGEMENT (CẤU HÌNH BANNER TRANG CHỦ - HÌNH 2)
+// --------------------------------------------------------------
+const formHeroConfig = document.getElementById('form-hero-config');
+
+async function loadHeroConfig() {
+  try {
+    const res = await fetch('/api/hero');
+    const json = await res.json();
+    if (json.success && json.data) {
+      heroConfig = json.data;
+      renderHeroConfig();
+    }
+  } catch (err) {
+    try {
+      const resLocal = await fetch('data/site_config.json');
+      heroConfig = await resLocal.json();
+      renderHeroConfig();
+    } catch (e) {}
+  }
+}
+
+function renderHeroConfig() {
+  if (!heroConfig) return;
+
+  const pos = heroConfig.heroImagePosition || 'center 25%';
+  const fit = heroConfig.heroImageFit || 'cover';
+  const match = pos.match(/(\d+)%/);
+  const numVal = match ? parseInt(match[1]) : 25;
+
+  const slider = document.getElementById('hero-pos-slider');
+  if (slider) slider.value = numVal;
+  const label = document.getElementById('hero-pos-label');
+  if (label) label.textContent = `Vị trí (${numVal}%)`;
+  const posInput = document.getElementById('hero-image-position');
+  if (posInput) posInput.value = pos;
+  const fitSelect = document.getElementById('hero-image-fit');
+  if (fitSelect) fitSelect.value = fit;
+
+  const badgeSubInput = document.getElementById('hero-badge-sub');
+  if (badgeSubInput) badgeSubInput.value = heroConfig.badgeSub || 'Sân tập tiêu chuẩn';
+  const badgeTitleInput = document.getElementById('hero-badge-title');
+  if (badgeTitleInput) badgeTitleInput.value = heroConfig.badgeTitle || 'Thảm PVC chống trượt BWF';
+  const badgeLocInput = document.getElementById('hero-badge-loc');
+  if (badgeLocInput) badgeLocInput.value = heroConfig.badgeLocation || 'Q4 • Q7';
+
+  // Preview & Mockup
+  const previewImg = document.getElementById('hero-preview-img');
+  if (previewImg && heroConfig.heroImage) {
+    previewImg.src = heroConfig.heroImage;
+    previewImg.style.objectPosition = pos;
+    previewImg.style.objectFit = fit;
+  }
+
+  const mockupImg = document.getElementById('hero-mockup-img');
+  if (mockupImg && heroConfig.heroImage) {
+    mockupImg.src = heroConfig.heroImage;
+    mockupImg.style.objectPosition = pos;
+    mockupImg.style.objectFit = fit;
+  }
+
+  const mockupSub = document.getElementById('hero-mockup-badge-sub');
+  if (mockupSub) mockupSub.textContent = heroConfig.badgeSub || 'Sân tập tiêu chuẩn';
+  const mockupTitle = document.getElementById('hero-mockup-badge-title');
+  if (mockupTitle) mockupTitle.textContent = heroConfig.badgeTitle || 'Thảm PVC chống trượt BWF';
+  const mockupLoc = document.getElementById('hero-mockup-badge-loc');
+  if (mockupLoc) mockupLoc.textContent = heroConfig.badgeLocation || 'Q4 • Q7';
+
+  // Highlight preset
+  const presets = document.querySelectorAll('.hero-pos-preset');
+  presets.forEach(btn => {
+    const bVal = parseInt(btn.dataset.val, 10);
+    if (bVal === numVal) {
+      btn.classList.add('border-blue-500', 'bg-white', 'text-blue-700', 'font-bold');
+      btn.classList.remove('border-slate-200', 'text-slate-700');
+    } else {
+      btn.classList.remove('border-blue-500', 'bg-white', 'text-blue-700', 'font-bold');
+      btn.classList.add('border-slate-200', 'text-slate-700');
+    }
+  });
+  refreshIcons();
+}
+
+function setupHeroDropzoneAndFraming() {
+  const dropzone = document.getElementById('hero-dropzone');
+  const fileInput = document.getElementById('hero-file-input');
+  const previewImg = document.getElementById('hero-preview-img');
+  const mockupImg = document.getElementById('hero-mockup-img');
+  const fileName = document.getElementById('hero-file-name');
+  const slider = document.getElementById('hero-pos-slider');
+  const posInput = document.getElementById('hero-image-position');
+  const posLabel = document.getElementById('hero-pos-label');
+  const fitSelect = document.getElementById('hero-image-fit');
+  const imageUrlInput = document.getElementById('hero-image-url');
+  const presets = document.querySelectorAll('.hero-pos-preset');
+
+  const badgeSubInput = document.getElementById('hero-badge-sub');
+  const badgeTitleInput = document.getElementById('hero-badge-title');
+  const badgeLocInput = document.getElementById('hero-badge-loc');
+  const mockupSub = document.getElementById('hero-mockup-badge-sub');
+  const mockupTitle = document.getElementById('hero-mockup-badge-title');
+  const mockupLoc = document.getElementById('hero-mockup-badge-loc');
+
+  if (dropzone && fileInput) {
+    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const src = event.target.result;
+          if (previewImg) previewImg.src = src;
+          if (mockupImg) mockupImg.src = src;
+          if (fileName) fileName.textContent = file.name;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  function updateHeroFraming(valPercent) {
+    const num = parseInt(valPercent, 10);
+    const posStr = `center ${num}%`;
+    if (posInput) posInput.value = posStr;
+    if (slider) slider.value = num;
+    if (posLabel) posLabel.textContent = `Vị trí (${num}%)`;
+    if (previewImg) previewImg.style.objectPosition = posStr;
+    if (mockupImg) mockupImg.style.objectPosition = posStr;
+
+    presets.forEach(btn => {
+      const bVal = parseInt(btn.dataset.val, 10);
+      if (bVal === num) {
+        btn.classList.add('border-blue-500', 'bg-white', 'text-blue-700', 'font-bold');
+        btn.classList.remove('border-slate-200', 'text-slate-700');
+      } else {
+        btn.classList.remove('border-blue-500', 'bg-white', 'text-blue-700', 'font-bold');
+        btn.classList.add('border-slate-200', 'text-slate-700');
+      }
+    });
+  }
+
+  if (slider) {
+    slider.addEventListener('input', (e) => updateHeroFraming(e.target.value));
+  }
+
+  presets.forEach(btn => {
+    btn.addEventListener('click', () => updateHeroFraming(btn.dataset.val || '25%'));
+  });
+
+  if (fitSelect) {
+    fitSelect.addEventListener('change', (e) => {
+      if (previewImg) previewImg.style.objectFit = e.target.value;
+      if (mockupImg) mockupImg.style.objectFit = e.target.value;
+    });
+  }
+
+  if (imageUrlInput) {
+    imageUrlInput.addEventListener('input', (e) => {
+      const url = e.target.value.trim();
+      if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
+        if (previewImg) previewImg.src = url;
+        if (mockupImg) mockupImg.src = url;
+        if (fileName) fileName.textContent = 'Ảnh từ URL';
+      }
+    });
+  }
+
+  // Live badge text updates in mockup
+  if (badgeSubInput && mockupSub) {
+    badgeSubInput.addEventListener('input', () => mockupSub.textContent = badgeSubInput.value || 'Sân tập tiêu chuẩn');
+  }
+  if (badgeTitleInput && mockupTitle) {
+    badgeTitleInput.addEventListener('input', () => mockupTitle.textContent = badgeTitleInput.value || 'Thảm PVC chống trượt BWF');
+  }
+  if (badgeLocInput && mockupLoc) {
+    badgeLocInput.addEventListener('input', () => mockupLoc.textContent = badgeLocInput.value || 'Q4 • Q7');
+  }
+}
+
+if (formHeroConfig) {
+  formHeroConfig.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btn-save-hero');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="animate-spin inline-block mr-2">🔄</span> Đang lưu...`;
+
+    const formData = new FormData();
+    formData.append('heroImageUrl', document.getElementById('hero-image-url').value.trim());
+    formData.append('heroImagePosition', document.getElementById('hero-image-position').value || 'center 25%');
+    formData.append('heroImageFit', document.getElementById('hero-image-fit').value || 'cover');
+    formData.append('badgeSub', document.getElementById('hero-badge-sub').value.trim());
+    formData.append('badgeTitle', document.getElementById('hero-badge-title').value.trim());
+    formData.append('badgeLocation', document.getElementById('hero-badge-loc').value.trim());
+
+    const fileInput = document.getElementById('hero-file-input');
+    if (fileInput && fileInput.files[0]) {
+      formData.append('heroImageFile', fileInput.files[0]);
+    }
+
+    try {
+      const res = await fetch('/api/hero?folder=hero', {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Cập nhật cấu hình Hero Banner thành công!');
+        heroConfig = data.data;
+        renderHeroConfig();
+      } else {
+        alert(data.message || 'Lỗi khi lưu Hero Banner!');
+      }
+    } catch (err) {
+      alert('Không thể kết nối máy chủ để lưu Hero Banner!');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Lưu Cấu Hình Hero Banner`;
+      refreshIcons();
+    }
+  });
+}
 
 // --------------------------------------------------------------
 // 2. BLOG POSTS (BÀI VIẾT SEO)
