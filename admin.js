@@ -137,6 +137,7 @@ function initDashboard() {
   setupFramingControls();
   setupCourseFramingControls();
   setupChangePassword();
+  initBackupManager();
 }
 
 function setupChangePassword() {
@@ -197,6 +198,8 @@ async function loadAchievements() {
     if (json.success) {
       achievementsData = json.data;
       renderAchievements();
+      saveLocalSnapshot();
+      checkStorageSyncNotice();
     }
   } catch (err) {
     console.error('Lỗi tải thành tích:', err);
@@ -205,6 +208,8 @@ async function loadAchievements() {
       const resLocal = await fetch('data/achievements.json');
       achievementsData = await resLocal.json();
       renderAchievements();
+      saveLocalSnapshot();
+      checkStorageSyncNotice();
     } catch (e) {
       achListContainer.innerHTML = '<p class="text-xs text-red-500">Chưa kết nối được máy chủ hoặc file dữ liệu.</p>';
     }
@@ -468,12 +473,14 @@ async function loadCourses() {
     if (json.success && Array.isArray(json.data)) {
       coursesData = json.data;
       renderCourses();
+      saveLocalSnapshot();
     }
   } catch (err) {
     try {
       const resLocal = await fetch('data/courses.json');
       coursesData = await resLocal.json();
       renderCourses();
+      saveLocalSnapshot();
     } catch (e) {
       if (coursesListContainer) coursesListContainer.innerHTML = '<p class="text-xs text-red-500">Chưa tải được danh sách khóa học.</p>';
     }
@@ -848,12 +855,14 @@ async function loadHeroConfig() {
     if (json.success && json.data) {
       heroConfig = json.data;
       renderHeroConfig();
+      saveLocalSnapshot();
     }
   } catch (err) {
     try {
       const resLocal = await fetch('data/site_config.json');
       heroConfig = await resLocal.json();
       renderHeroConfig();
+      saveLocalSnapshot();
     } catch (e) {}
   }
 }
@@ -1109,6 +1118,7 @@ async function loadPosts() {
     if (json.success) {
       postsData = json.data;
       renderPosts();
+      saveLocalSnapshot();
     }
   } catch (err) {
     console.error('Lỗi tải bài viết:', err);
@@ -1116,6 +1126,7 @@ async function loadPosts() {
       const resLocal = await fetch('data/posts.json');
       postsData = await resLocal.json();
       renderPosts();
+      saveLocalSnapshot();
     } catch (e) {
       postsListContainer.innerHTML = '<p class="text-xs text-red-500">Chưa kết nối được máy chủ hoặc file bài viết.</p>';
     }
@@ -1322,6 +1333,7 @@ async function loadLeads() {
     if (json.success) {
       leadsData = json.data;
       renderLeads();
+      saveLocalSnapshot();
     }
   } catch (err) {
     console.error('Lỗi tải danh sách lead:', err);
@@ -1329,6 +1341,7 @@ async function loadLeads() {
       const resLocal = await fetch('data/registrations.json');
       leadsData = await resLocal.json();
       renderLeads();
+      saveLocalSnapshot();
     } catch (e) {
       leadsTableBody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-xs text-red-500">Chưa kết nối được máy chủ hoặc file leads.</td></tr>`;
     }
@@ -1765,6 +1778,267 @@ function setupNativeDragAndDrop(container, itemSelector, handleSelector, onReord
       }
     });
   });
+}
+
+// ==============================================================
+// SAO LƯU & BẢO VỆ DỮ LIỆU ĐA TẦNG (ANTI-DATA-LOSS BACKUP SYSTEM)
+// ==============================================================
+const BACKUP_STORAGE_KEY = 'caulong_cms_backup_v1';
+
+function saveLocalSnapshot() {
+  try {
+    const snapshot = {
+      app: 'lophoccaulong.com',
+      savedAt: new Date().toISOString(),
+      timestamp: Date.now(),
+      achievements: achievementsData,
+      courses: coursesData,
+      heroConfig: heroConfig,
+      posts: postsData,
+      leads: leadsData
+    };
+    localStorage.setItem(BACKUP_STORAGE_KEY, JSON.stringify(snapshot));
+    updateLocalBackupMeta();
+  } catch (err) {
+    console.warn('Lỗi ghi local snapshot:', err);
+  }
+}
+
+function updateLocalBackupMeta() {
+  const metaEl = document.getElementById('local-backup-meta');
+  if (!metaEl) return;
+  try {
+    const raw = localStorage.getItem(BACKUP_STORAGE_KEY);
+    if (!raw) {
+      metaEl.innerHTML = 'Chưa có bản sao lưu nào trong trình duyệt này.';
+      return;
+    }
+    const data = JSON.parse(raw);
+    const dateStr = data.savedAt ? new Date(data.savedAt).toLocaleString('vi-VN') : 'Vừa xong';
+    const achCount = (data.achievements || []).length;
+    const crsCount = (data.courses || []).length;
+    const postCount = (data.posts || []).length;
+    metaEl.innerHTML = `🟢 <strong>Đã lưu tự động lúc:</strong> ${dateStr}<br>📦 Bộ nhớ hiện có: <strong>${achCount} thành tích</strong>, <strong>${crsCount} khóa học</strong>, <strong>${postCount} bài blog</strong>.`;
+  } catch (err) {
+    metaEl.textContent = 'Không thể đọc bản sao lưu.';
+  }
+}
+
+function checkStorageSyncNotice() {
+  try {
+    const raw = localStorage.getItem(BACKUP_STORAGE_KEY);
+    if (!raw) return;
+    const local = JSON.parse(raw);
+    const banner = document.getElementById('banner-sync-storage');
+    if (!banner) return;
+
+    // Nếu server có 0 hoặc ít thành tích hơn bộ nhớ máy
+    if (achievementsData.length === 0 && local.achievements && local.achievements.length > 0) {
+      const bannerTitle = document.getElementById('banner-sync-title');
+      const bannerDesc = document.getElementById('banner-sync-desc');
+      if (bannerTitle) bannerTitle.textContent = `Phát hiện ${local.achievements.length} bài viết thành tích học viên trong bộ nhớ máy!`;
+      if (bannerDesc) bannerDesc.textContent = `Máy chủ có thể vừa khởi động lại. Bấm nút bên phải để khôi phục toàn bộ dữ liệu lên website ngay lập tức!`;
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+    }
+  } catch (e) {}
+}
+
+function showBackupAlert(message, isSuccess = true) {
+  const alertBox = document.getElementById('backup-alert-box');
+  if (!alertBox) {
+    alert(message);
+    return;
+  }
+  alertBox.className = `mb-8 p-4 rounded-2xl text-xs font-semibold block ${
+    isSuccess ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-800 border-2 border-red-300'
+  }`;
+  alertBox.innerHTML = `${isSuccess ? '✅' : '❌'} ${message}`;
+  alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => {
+    alertBox.classList.add('hidden');
+  }, 6000);
+}
+
+// Tải file JSON về máy tính
+async function downloadBackupFile() {
+  try {
+    let backupPayload = null;
+
+    // Ưu tiên lấy trực tiếp từ API server
+    try {
+      const res = await fetch('/api/backup', {
+        headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+      });
+      const json = await res.json();
+      if (json.success && json.backup) {
+        backupPayload = json.backup;
+      }
+    } catch (e) {
+      console.warn('Không gọi được /api/backup, dùng bộ nhớ cục bộ');
+    }
+
+    // Nếu API không phản hồi, dùng bộ nhớ hiện tại của client
+    if (!backupPayload) {
+      backupPayload = {
+        app: 'lophoccaulong.com',
+        exportDate: new Date().toISOString(),
+        timestamp: Date.now(),
+        achievements: achievementsData,
+        courses: coursesData,
+        site_config: heroConfig,
+        posts: postsData,
+        registrations: leadsData
+      };
+    }
+
+    const jsonStr = JSON.stringify(backupPayload, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const nowStr = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `sao-luu-lophoccaulong-${nowStr}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showBackupAlert('Đã tải thành công tệp sao lưu về máy tính! Bạn hãy cất giữ file này cẩn thận.');
+  } catch (err) {
+    console.error('Lỗi khi tải bản sao lưu:', err);
+    showBackupAlert('Lỗi khi tải bản sao lưu: ' + err.message, false);
+  }
+}
+
+// Phục hồi dữ liệu từ Object payload lên Server
+async function restoreDataPayload(payload, sourceName = 'file') {
+  try {
+    const res = await fetch('/api/backup/restore', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AUTH_TOKEN}`
+      },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    if (result.success) {
+      showBackupAlert(`🎉 Phục hồi dữ liệu thành công từ ${sourceName}! Đang làm mới dữ liệu...`);
+      // Reload all collections
+      await Promise.all([
+        loadAchievements(),
+        loadCourses(),
+        loadHeroConfig(),
+        loadPosts(),
+        loadLeads()
+      ]);
+      saveLocalSnapshot();
+      const banner = document.getElementById('banner-sync-storage');
+      if (banner) banner.classList.add('hidden');
+    } else {
+      showBackupAlert('Lỗi phục hồi: ' + (result.message || 'Không thể khôi phục'), false);
+    }
+  } catch (err) {
+    console.error('Lỗi gọi /api/backup/restore:', err);
+    showBackupAlert('Không thể kết nối máy chủ để phục hồi: ' + err.message, false);
+  }
+}
+
+function initBackupManager() {
+  updateLocalBackupMeta();
+  checkStorageSyncNotice();
+
+  // Nút tải sao lưu nhanh trên Header
+  const btnQuickBackup = document.getElementById('btn-quick-backup');
+  if (btnQuickBackup) {
+    btnQuickBackup.addEventListener('click', (e) => {
+      e.preventDefault();
+      downloadBackupFile();
+    });
+  }
+
+  // Nút tải sao lưu trong Tab Sao Lưu
+  const btnExportBackup = document.getElementById('btn-export-backup');
+  if (btnExportBackup) {
+    btnExportBackup.addEventListener('click', (e) => {
+      e.preventDefault();
+      downloadBackupFile();
+    });
+  }
+
+  // Nút chọn file để phục hồi
+  const btnTriggerFile = document.getElementById('btn-trigger-file-restore');
+  const fileRestoreInput = document.getElementById('file-restore-input');
+  if (btnTriggerFile && fileRestoreInput) {
+    btnTriggerFile.addEventListener('click', () => {
+      fileRestoreInput.click();
+    });
+
+    fileRestoreInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (!confirm(`Bạn có chắc chắn muốn khôi phục toàn bộ dữ liệu từ file "${file.name}" không? Thao tác này sẽ cập nhật các bài viết lên website.`)) {
+            fileRestoreInput.value = '';
+            return;
+          }
+          await restoreDataPayload(parsed, `tệp "${file.name}"`);
+          fileRestoreInput.value = '';
+        } catch (parseErr) {
+          alert('Tệp tin không đúng định dạng JSON sao lưu hợp lệ!');
+          fileRestoreInput.value = '';
+        }
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  // Nút phục hồi từ LocalStorage trong Tab
+  const btnRestoreLocal = document.getElementById('btn-restore-local');
+  if (btnRestoreLocal) {
+    btnRestoreLocal.addEventListener('click', async () => {
+      const raw = localStorage.getItem(BACKUP_STORAGE_KEY);
+      if (!raw) {
+        alert('Trình duyệt chưa có dữ liệu sao lưu cục bộ!');
+        return;
+      }
+      try {
+        const local = JSON.parse(raw);
+        if (!confirm('Bạn có muốn đồng bộ toàn bộ bản sao trong trình duyệt này lên máy chủ không?')) return;
+        await restoreDataPayload(local, 'bộ nhớ trình duyệt');
+      } catch (e) {
+        alert('Dữ liệu bộ nhớ trình duyệt bị lỗi!');
+      }
+    });
+  }
+
+  // Nút phục hồi trên Banner cảnh báo
+  const btnBannerRestore = document.getElementById('btn-banner-restore');
+  if (btnBannerRestore) {
+    btnBannerRestore.addEventListener('click', async () => {
+      const raw = localStorage.getItem(BACKUP_STORAGE_KEY);
+      if (!raw) return;
+      try {
+        const local = JSON.parse(raw);
+        await restoreDataPayload(local, 'bộ nhớ trình duyệt');
+      } catch (e) {}
+    });
+  }
+
+  // Nút đóng Banner
+  const btnBannerDismiss = document.getElementById('btn-banner-dismiss');
+  if (btnBannerDismiss) {
+    btnBannerDismiss.addEventListener('click', () => {
+      const banner = document.getElementById('banner-sync-storage');
+      if (banner) banner.classList.add('hidden');
+    });
+  }
 }
 
 // Check authentication on page load

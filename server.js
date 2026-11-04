@@ -80,17 +80,89 @@ function getDataPath(filename) {
   return path.join(__dirname, 'data', filename);
 }
 
+// 4 THÀNH TÍCH HỌC VIÊN THỰC TẾ GỐC (BẢO LƯU VĨNH VIỄN, KHÔNG BAO GIỜ BỊ MẤT)
+const DEFAULT_ACHIEVEMENTS = [
+  {
+    id: "ach-helen",
+    studentName: "Chị Helen",
+    award: "Huy chương Vàng",
+    tournament: "Giải Đồng đội nữ",
+    court: "Sân Dni Sport (Quận 7)",
+    duration: "6 tháng tập luyện",
+    image: "/uploads/achievements/helen.jpg",
+    imagePosition: "center 15%",
+    imageFit: "cover",
+    quote: "Nhờ sự hướng dẫn tận tâm và giáo án bài bản của thầy Kevin tại sân Dni Sport, chị và đồng đội đã xuất sắc giành Huy chương Vàng.",
+    date: "2026-11-04",
+    featured: true
+  },
+  {
+    id: "ach-anh-thu",
+    studentName: "Anh Thư",
+    award: "Huy Chương Đồng",
+    tournament: "Giải cầu lông sinh viên ĐH Tôn Đức Thắng",
+    court: "Sân Dni Sport (Quận 7)",
+    duration: "1 năm",
+    image: "/uploads/achievements/anh-thu.jpg",
+    imagePosition: "center 15%",
+    imageFit: "cover",
+    quote: "Tấm Huy chương Đồng giải sinh viên ĐH Tôn Đức Thắng là kết quả xứng đáng sau 1 năm rèn luyện. Em cảm ơn thầy Kevin!",
+    date: "2026-11-04",
+    featured: true
+  },
+  {
+    id: "ach-anh-long",
+    studentName: "Anh Long",
+    award: "Huy chương vàng",
+    tournament: "Giải Cty Bds MQ",
+    court: "Cả 2 sân Q4 & Q7",
+    duration: "5 tháng",
+    image: "/uploads/achievements/anh-long.jpg",
+    imagePosition: "center 15%",
+    imageFit: "cover",
+    quote: "Từ những ngày đầu bỡ ngỡ, sau 5 tháng kiên trì tập luyện tại sân T12 và sân Dni sport Q7, mình đã tự tin thi đấu và đạt Huy chương Vàng.",
+    date: "2026-11-04",
+    featured: true
+  },
+  {
+    id: "ach-nhom-t12",
+    studentName: "Nhóm cầu lông sân T12",
+    award: "Huy chương bạc",
+    tournament: "Giải nội bộ nhóm cầu lông năm 2025",
+    court: "Sân T12 (Quận 4)",
+    duration: "5 tháng",
+    image: "/uploads/achievements/nhom-t12.jpg",
+    imagePosition: "center 15%",
+    imageFit: "cover",
+    quote: "5 tháng rèn luyện tại Sân T12 Quận 4 và tấm Huy chương Bạc là câu trả lời rõ nhất cho chất lượng đào tạo ở đây. Cảm ơn thầy!",
+    date: "2026-11-04",
+    featured: true
+  }
+];
+
 function readJson(filename, defaultValue = []) {
   try {
     const filePath = getDataPath(filename);
     if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, JSON.stringify(defaultValue, null, 2), 'utf8');
-      return defaultValue;
+      const fallbackVal = (filename === 'achievements.json' && defaultValue.length === 0) 
+        ? DEFAULT_ACHIEVEMENTS 
+        : defaultValue;
+      fs.writeFileSync(filePath, JSON.stringify(fallbackVal, null, 2), 'utf8');
+      return fallbackVal;
     }
-    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    const raw = fs.readFileSync(filePath, 'utf8');
+    if (!raw.trim()) {
+      return (filename === 'achievements.json') ? DEFAULT_ACHIEVEMENTS : defaultValue;
+    }
+    const parsed = JSON.parse(raw);
+    if (filename === 'achievements.json' && Array.isArray(parsed) && parsed.length === 0) {
+      fs.writeFileSync(filePath, JSON.stringify(DEFAULT_ACHIEVEMENTS, null, 2), 'utf8');
+      return DEFAULT_ACHIEVEMENTS;
+    }
+    return parsed;
   } catch (err) {
     console.error(`Error reading ${filename}:`, err.message);
-    return defaultValue;
+    return (filename === 'achievements.json') ? DEFAULT_ACHIEVEMENTS : defaultValue;
   }
 }
 
@@ -775,6 +847,88 @@ app.delete('/api/registrations/:id', requireAdmin, (req, res) => {
   const filtered = registrations.filter(r => r.id !== req.params.id);
   writeJson('registrations.json', filtered);
   res.json({ success: true, message: 'Đã xóa đăng ký!' });
+});
+
+// =================================================================
+// 9. SAO LƯU & PHỤC HỒI DỮ LIỆU AN TOÀN (ANTI-DATA-LOSS BACKUP SYSTEM)
+// =================================================================
+app.get('/api/backup', requireAdmin, (req, res) => {
+  try {
+    const backupData = {
+      app: 'lophoccaulong.com',
+      exportDate: new Date().toISOString(),
+      timestamp: Date.now(),
+      achievements: readJson('achievements.json', DEFAULT_ACHIEVEMENTS),
+      courses: readJson('courses.json', []),
+      site_config: readJson('site_config.json', {}),
+      posts: readJson('posts.json', []),
+      registrations: readJson('registrations.json', [])
+    };
+    res.json({
+      success: true,
+      message: 'Xuất bản sao lưu hệ thống thành công!',
+      backup: backupData
+    });
+  } catch (err) {
+    console.error('Lỗi khi xuất sao lưu:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi tạo bản sao lưu: ' + err.message });
+  }
+});
+
+app.post('/api/backup/restore', requireAdmin, (req, res) => {
+  try {
+    const body = req.body || {};
+    const payload = body.backup || body.data || body;
+
+    let restoredInfo = [];
+    const timestamp = Date.now();
+
+    // 1. Phục hồi Thành Tích Học Viên (Nếu có dữ liệu hợp lệ)
+    if (Array.isArray(payload.achievements) && payload.achievements.length > 0) {
+      writeJson('achievements.json', payload.achievements);
+      restoredInfo.push(`${payload.achievements.length} thành tích học viên`);
+    }
+
+    // 2. Phục hồi Khóa Học
+    if (Array.isArray(payload.courses) && payload.courses.length > 0) {
+      writeJson('courses.json', payload.courses);
+      restoredInfo.push(`${payload.courses.length} khóa học`);
+    }
+
+    // 3. Phục hồi Cấu Hình Banner Hero
+    if (payload.site_config && typeof payload.site_config === 'object' && Object.keys(payload.site_config).length > 0) {
+      writeJson('site_config.json', payload.site_config);
+      restoredInfo.push('Cấu hình Banner Hero');
+    }
+
+    // 4. Phục hồi Bài Viết Blog
+    if (Array.isArray(payload.posts) && payload.posts.length > 0) {
+      writeJson('posts.json', payload.posts);
+      restoredInfo.push(`${payload.posts.length} bài viết Blog`);
+    }
+
+    // 5. Phục hồi Danh Sách Đăng Ký
+    if (Array.isArray(payload.registrations) && payload.registrations.length > 0) {
+      writeJson('registrations.json', payload.registrations);
+      restoredInfo.push(`${payload.registrations.length} lượt đăng ký học viên`);
+    }
+
+    if (restoredInfo.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Dữ liệu sao lưu không hợp lệ hoặc không có nội dung để khôi phục!'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Khôi phục thành công: ${restoredInfo.join(', ')}!`,
+      restored: restoredInfo
+    });
+  } catch (err) {
+    console.error('Lỗi khi phục hồi sao lưu:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi phục hồi dữ liệu: ' + err.message });
+  }
 });
 
 // Single-page fallback

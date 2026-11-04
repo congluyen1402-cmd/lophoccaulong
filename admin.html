@@ -100,6 +100,9 @@
       </div>
 
       <div class="flex items-center gap-3">
+        <button id="btn-quick-backup" title="Tải toàn bộ dữ liệu về máy tính để dự phòng" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-white bg-emerald-50 hover:bg-emerald-600 border border-emerald-300 px-3 py-2 rounded-lg transition shadow-sm">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i> Tải Sao Lưu Về Máy
+        </button>
         <a href="index.html" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-emerald-600 bg-slate-100 hover:bg-emerald-50 px-3 py-2 rounded-lg transition">
           <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Xem Web
         </a>
@@ -156,6 +159,27 @@
       </div>
     </div>
 
+    <!-- BANNER CẢNH BÁO / KHÔI PHỤC DỮ LIỆU TỰ ĐỘNG (ANTI-DATA-LOSS) -->
+    <div id="banner-sync-storage" class="hidden mb-6 p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-200 text-amber-800 flex items-center justify-center shrink-0 text-lg">
+          ⚠️
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-amber-900" id="banner-sync-title">Phát hiện dữ liệu an toàn trong bộ nhớ máy tính!</h4>
+          <p class="text-xs text-amber-700" id="banner-sync-desc">Trình duyệt của bạn đang lưu bản sao lưu mới hơn máy chủ. Bạn có thể khôi phục ngay chỉ với 1 cú click.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="btn-banner-restore" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow transition flex items-center gap-1.5">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Khôi Phục Lên Server Ngay
+        </button>
+        <button id="btn-banner-dismiss" class="px-2.5 py-2 rounded-xl text-xs font-semibold bg-amber-100 hover:bg-amber-200 text-amber-800 transition">
+          Đóng
+        </button>
+      </div>
+    </div>
+
     <!-- TABS BAR -->
     <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-200 pb-3">
       <button class="tab-btn active px-4 py-2.5 rounded-xl font-semibold text-sm transition flex items-center gap-2" data-tab="tab-achievements">
@@ -173,6 +197,9 @@
       <button class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-200 transition flex items-center gap-2" data-tab="tab-leads">
         <i data-lucide="phone-call" class="w-4 h-4"></i> Học Viên Đăng Ký Mới
         <span id="badge-new-leads" class="ml-1 px-1.5 py-0.5 rounded-full text-xs bg-red-500 text-white font-bold hidden">0</span>
+      </button>
+      <button class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-200 transition flex items-center gap-2" data-tab="tab-backup">
+        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i> 🛡️ Sao Lưu & Bảo Vệ Dữ Liệu
       </button>
       <button class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-200 transition flex items-center gap-2" data-tab="tab-guide">
         <i data-lucide="help-circle" class="w-4 h-4"></i> Hướng Dẫn & SEO
@@ -792,6 +819,105 @@
               <!-- Render dynamically -->
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TAB: SAO LƯU & BẢO VỆ DỮ LIỆU (ANTI-DATA-LOSS) ================= -->
+    <div id="tab-backup" class="tab-content hidden">
+      <!-- Header Giới Thiệu -->
+      <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-lg mb-8">
+        <div class="max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-xs font-bold mb-3 border border-emerald-400/30">
+            🛡️ BẢO VỆ DỮ LIỆU ĐA TẦNG (ZERO DATA LOSS)
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold font-heading mb-2">Trung Tâm Sao Lưu & Phục Hồi Dữ Liệu An Toàn</h2>
+          <p class="text-emerald-100 text-xs sm:text-sm leading-relaxed">
+            Hệ thống website đã được trang bị cơ chế <strong>tự động sao chép song song 3 lớp</strong> (Bộ nhớ máy tính của bạn + Tệp tin tải về + Máy chủ Git). Bất kể khi nào hệ thống nâng cấp, dữ liệu của bạn sẽ không bao giờ bị mất!
+          </p>
+        </div>
+      </div>
+
+      <!-- Lưới Thao Tác Sao Lưu & Phục Hồi -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        
+        <!-- CARD 1: TẢI FILE VỀ MÁY -->
+        <div class="bg-white p-6 rounded-2xl border-2 border-emerald-200 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+              <i data-lucide="download-cloud" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-base font-bold font-heading text-slate-900 mb-1">1. Tải Sao Lưu Về Máy (.json)</h3>
+            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+              Xuất toàn bộ Thành tích học viên, Các khóa học, Banner Hero và Bài viết Blog thành 1 tệp tin JSON an toàn về máy tính của bạn.
+            </p>
+          </div>
+          <button id="btn-export-backup" class="w-full py-3 px-4 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition flex items-center justify-center gap-2">
+            <i data-lucide="download" class="w-4 h-4"></i> Tải File Sao Lưu (.json)
+          </button>
+        </div>
+
+        <!-- CARD 2: PHỤC HỒI TỪ FILE -->
+        <div class="bg-white p-6 rounded-2xl border-2 border-blue-200 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
+              <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-base font-bold font-heading text-slate-900 mb-1">2. Phục Hồi Từ File (.json)</h3>
+            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+              Chọn tệp tin JSON sao lưu bạn đã lưu trong máy tính trước đó để khôi phục lại 100% dữ liệu lên website chỉ trong 1 giây.
+            </p>
+          </div>
+          <div>
+            <input type="file" id="file-restore-input" accept=".json" class="hidden">
+            <button id="btn-trigger-file-restore" class="w-full py-3 px-4 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white shadow-md transition flex items-center justify-center gap-2">
+              <i data-lucide="upload" class="w-4 h-4"></i> Chọn File & Khôi Phục Ngay
+            </button>
+          </div>
+        </div>
+
+        <!-- CARD 3: KHÔI PHỤC TỪ TRÌNH DUYỆT -->
+        <div class="bg-white p-6 rounded-2xl border-2 border-purple-200 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mb-4">
+              <i data-lucide="hard-drive" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-base font-bold font-heading text-slate-900 mb-1">3. Khôi Phục Từ Bộ Nhớ Trình Duyệt</h3>
+            <p class="text-xs text-slate-600 mb-2 leading-relaxed">
+              Mỗi khi bạn chỉnh sửa, trình duyệt của bạn tự động lưu 1 bản sao. Bấm vào đây để đồng bộ ngay bản sao đó lên máy chủ.
+            </p>
+            <div id="local-backup-meta" class="text-[11px] text-purple-700 font-semibold mb-4 bg-purple-50 p-2.5 rounded-lg border border-purple-200">
+              Đang kiểm tra bộ nhớ trình duyệt...
+            </div>
+          </div>
+          <button id="btn-restore-local" class="w-full py-3 px-4 rounded-xl font-bold text-xs bg-purple-600 hover:bg-purple-700 text-white shadow-md transition flex items-center justify-center gap-2">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Đồng Bộ Bản Sao Trình Duyệt
+          </button>
+        </div>
+
+      </div>
+
+      <!-- CARD THÔNG BÁO KẾT QUẢ -->
+      <div id="backup-alert-box" class="hidden mb-8 p-4 rounded-2xl text-xs font-semibold"></div>
+
+      <!-- CARD HƯỚNG DẪN CHI TIẾT -->
+      <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 class="text-base font-bold font-heading text-slate-900 mb-4 flex items-center gap-2">
+          <i data-lucide="shield-alert" class="w-5 h-5 text-emerald-600"></i> Tại Sao Cần Sao Lưu & Làm Sao Để Không Bao Giờ Bị Mất Thông Tin?
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-600 leading-relaxed">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="font-bold text-slate-900 mb-1">1. Tự Động Lưu Song Song</div>
+            <p>Mỗi khi bạn thêm mới, sửa bài viết học viên, chỉnh ảnh hay cập nhật khóa học, hệ thống lập tức lưu 1 bản trực tiếp trên máy chủ và 1 bản vào trình duyệt máy bạn (LocalStorage).</p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="font-bold text-slate-900 mb-1">2. Tải File Về Máy Tính Định Kỳ</div>
+            <p>Sau khi hoàn thành việc chỉnh sửa nội dung lớn, bạn chỉ cần bấm nút <strong>"Tải Sao Lưu Về Máy"</strong> ở góc trên bên phải. File này rất nhẹ và có thể cất trong máy trọn đời.</p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="font-bold text-slate-900 mb-1">3. Khôi Phục Bất Kỳ Lúc Nào</div>
+            <p>Nếu website có bất kỳ thay đổi nào hay nâng cấp server, bạn chỉ cần vào mục này, chọn file JSON hoặc bấm nút "Đồng Bộ Bản Sao Trình Duyệt" là mọi thông tin phục hồi lại 100%.</p>
+          </div>
         </div>
       </div>
     </div>
