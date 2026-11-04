@@ -1057,6 +1057,14 @@ app.post('/api/backup/restore', requireAdmin, (req, res) => {
   }
 });
 
+// Trang thông tin Huấn luyện viên
+app.get('/huan-luyen-vien', (req, res) => {
+  res.sendFile(path.join(__dirname, 'huan-luyen-vien.html'));
+});
+app.get('/hlv', (req, res) => {
+  res.sendFile(path.join(__dirname, 'huan-luyen-vien.html'));
+});
+
 // Single-page fallback
 app.get('/blog/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, 'blog-detail.html'));
