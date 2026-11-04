@@ -8,9 +8,9 @@
 // 1. CẤU HÌNH THƯƠNG HIỆU & LIÊN LẠC (DỄ DÀNG CHỈNH SỬA TẠI ĐÂY)
 // =================================================================
 const BRAND_CONFIG = {
-  phoneDisplay: '09xx.xxx.xxx',
-  phoneDial: 'tel:09xxxxxxxx',
-  zaloUrl: 'https://zalo.me/09xxxxxxxx',
+  phoneDisplay: '0813.100.402',
+  phoneDial: 'tel:0813100402',
+  zaloUrl: 'https://zalo.me/0813100402',
   facebookUrl: 'https://www.facebook.com/profile.php?id=61565837504855',
   facebookMsgUrl: 'https://m.me/61565837504855',
   tiktokUrl: 'https://www.tiktok.com/@lophoccaulongq4q7',
@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFloatingButtons();
   initMobileBottomBar();
   initVideoModal();
+  initZaloQRModal();
 });
 
 // =================================================================
@@ -722,5 +723,54 @@ function initMobileBottomBar() {
     input.addEventListener('blur', () => {
       bottomBar.classList.remove('hidden-bar');
     });
+  });
+}
+
+// =================================================================
+// 15. ZALO QR CODE MODAL POPUP
+// =================================================================
+function initZaloQRModal() {
+  const modal = document.getElementById('zalo-qr-modal');
+  if (!modal) return;
+
+  const closeBtn = document.getElementById('zalo-modal-close');
+
+  const openModal = (e) => {
+    if (e) e.preventDefault();
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeModal = () => {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+  };
+
+  // Bắt sự kiện click vào các nút/biểu tượng Zalo
+  document.querySelectorAll('[data-open-zalo-qr], a[href*="zalo.me"], .btn-zalo-modal').forEach(btn => {
+    // Không gán lại cho các nút bên trong modal
+    if (!btn.closest('#zalo-qr-modal')) {
+      btn.addEventListener('click', openModal);
+    }
+  });
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeModal);
+  }
+
+  // Đóng khi click ngoài khung modal
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  // Đóng khi bấm phím ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+      closeModal();
+    }
   });
 }
