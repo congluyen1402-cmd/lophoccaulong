@@ -320,22 +320,51 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Phục vụ file tĩnh
-app.use(express.static(path.join(__dirname)));
+// Phục vụ file tĩnh & cơ chế fallback chống lỗi 404 ảnh
+app.use('/uploads', (req, res, next) => {
+  const reqPath = decodeURIComponent(req.path);
+  const directPath = path.join(__dirname, 'uploads', reqPath);
+  if (fs.existsSync(directPath) && fs.statSync(directPath).isFile()) {
+    return res.sendFile(directPath);
+  }
+  // Tìm kiếm dự phòng trên tất cả các thư mục con trong uploads (tránh lỗi lệch folder lưu ảnh)
+  const filename = path.basename(reqPath);
+  if (filename) {
+    const candidateFolders = ['blog', 'achievements', 'courses', 'hero', ''];
+    for (const sub of candidateFolders) {
+      const candidatePath = path.join(__dirname, 'uploads', sub, filename);
+      if (fs.existsSync(candidatePath) && fs.statSync(candidatePath).isFile()) {
+        return res.sendFile(candidatePath);
+      }
+    }
+  }
+  next();
+});
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.static(path.join(__dirname)));
 
 // Cấu hình Multer upload file tuyệt đối an toàn
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     let folder = 'achievements';
-    if (req.query.folder === 'blog') folder = 'blog';
-    else if (req.query.folder === 'courses') folder = 'courses';
-    else if (req.query.folder === 'hero') folder = 'hero';
+    const originalUrl = req.originalUrl || req.url || '';
+    if (req.query.folder === 'blog' || originalUrl.includes('/api/posts') || file.fieldname === 'coverImageFile') {
+      folder = 'blog';
+    } else if (req.query.folder === 'courses' || originalUrl.includes('/api/courses') || file.fieldname === 'courseImageFile') {
+      folder = 'courses';
+    } else if (req.query.folder === 'hero' || originalUrl.includes('/api/hero') || file.fieldname === 'heroImageFile') {
+      folder = 'hero';
+    } else if (req.query.folder === 'achievements' || originalUrl.includes('/api/achievements') || file.fieldname === 'imageFile') {
+      folder = 'achievements';
+    }
     const dest = path.join(__dirname, 'uploads', folder);
+    if (!fs.existsSync(dest)) {
+      fs.mkdirSync(dest, { recursive: true });
+    }
     cb(null, dest);
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname).toLowerCase();
+    const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
     // Tạo tên file ngẫu nhiên bằng chuỗi mã hóa cryptographically secure để không bị trùng hoặc đoán trước
     const randomHex = crypto.randomBytes(16).toString('hex');
     cb(null, `${Date.now()}-${randomHex}${ext}`);
@@ -343,20 +372,20 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedExts = ['.jpg', '.jpeg', '.png', '.webp'];
+  const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.jfif'];
   const ext = path.extname(file.originalname).toLowerCase();
-  const allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+  const isImageMime = file.mimetype && file.mimetype.startsWith('image/');
 
-  if (allowedExts.includes(ext) && allowedMimes.includes(file.mimetype)) {
+  if (allowedExts.includes(ext) || isImageMime) {
     cb(null, true);
   } else {
-    cb(new Error('Chỉ chấp nhận file hình ảnh hợp lệ (JPG, PNG, WEBP)!'));
+    cb(new Error('Chỉ chấp nhận file hình ảnh hợp lệ (JPG, PNG, WEBP, GIF)!'));
   }
 };
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 8 * 1024 * 1024 }, // Tối đa 8MB
+  limits: { fileSize: 15 * 1024 * 1024 }, // Tối đa 15MB
   fileFilter: fileFilter
 });
 
@@ -849,10 +878,18 @@ app.put('/api/posts/:id', requireAdmin, upload.single('coverImageFile'), (req, r
     coverImage = sanitizeInput(body.coverImage);
   }
 
+  let parsedTags = posts[idx].tags || [];
+  if (Array.isArray(body.tags)) {
+    parsedTags = body.tags.map(sanitizeInput);
+  } else if (typeof body.tags === 'string' && body.tags.trim()) {
+    parsedTags = body.tags.split(',').map(t => sanitizeInput(t.trim())).filter(Boolean);
+  }
+
   posts[idx] = {
     ...posts[idx],
     ...body,
     coverImage,
+    tags: parsedTags,
     imagePosition: body.imagePosition ? sanitizeInput(body.imagePosition) : (posts[idx].imagePosition || 'center 20%'),
     imageFit: body.imageFit ? sanitizeInput(body.imageFit) : (posts[idx].imageFit || 'cover')
   };
@@ -1068,6 +1105,24 @@ app.get('/hlv', (req, res) => {
 // Single-page fallback
 app.get('/blog/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, 'blog-detail.html'));
+});
+
+// Middleware xử lý lỗi upload Multer & lỗi server tập trung
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ success: false, message: 'Dung lượng ảnh vượt quá giới hạn 15MB!' });
+    }
+    return res.status(400).json({ success: false, message: `Lỗi tải tệp: ${err.message}` });
+  }
+  if (err && (err.message || '').includes('hình ảnh')) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+  if (err) {
+    console.error('Lỗi máy chủ:', err);
+    return res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + (err.message || 'Không xác định') });
+  }
+  next();
 });
 
 // 404 handler cho các yêu cầu không hợp lệ

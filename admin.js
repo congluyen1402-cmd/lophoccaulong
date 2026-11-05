@@ -136,6 +136,7 @@ function initDashboard() {
   setupPostEditor();
   setupFramingControls();
   setupCourseFramingControls();
+  setupPostFramingControls();
   setupChangePassword();
   initBackupManager();
 }
@@ -1107,6 +1108,26 @@ function setupPostEditor() {
     document.getElementById('btn-save-post').innerHTML = `<i data-lucide="send" class="w-4 h-4"></i> Xuất Bản Bài Viết`;
     document.getElementById('post-preview-container').classList.add('hidden');
     document.getElementById('post-upload-prompt').classList.remove('hidden');
+    const posInput = document.getElementById('post-image-position');
+    if (posInput) posInput.value = 'center 20%';
+    const slider = document.getElementById('post-pos-slider');
+    if (slider) slider.value = 20;
+    const label = document.getElementById('post-pos-label');
+    if (label) label.textContent = 'Căn chuẩn (20%)';
+    const fitSelect = document.getElementById('post-image-fit');
+    if (fitSelect) fitSelect.value = 'cover';
+    const fileInput = document.getElementById('post-file-input');
+    if (fileInput) fileInput.value = '';
+    const presets = document.querySelectorAll('.post-pos-preset');
+    presets.forEach(b => {
+      if (b.dataset.val === '20%') {
+        b.classList.add('border-blue-500', 'bg-blue-50', 'text-blue-700', 'font-bold');
+        b.classList.remove('border-slate-200', 'text-slate-700');
+      } else {
+        b.classList.remove('border-blue-500', 'bg-blue-50', 'text-blue-700', 'font-bold');
+        b.classList.add('border-slate-200', 'text-slate-700');
+      }
+    });
     refreshIcons();
   });
 }
@@ -1156,7 +1177,9 @@ function renderPosts() {
         <div class="post-drag-handle p-2 rounded-xl bg-slate-100 hover:bg-blue-100 text-slate-400 hover:text-blue-700 cursor-grab active:cursor-grabbing transition shrink-0 flex items-center justify-center" title="Giữ chuột và kéo để đổi vị trí bài">
           <i data-lucide="grip-vertical" class="w-5 h-5 pointer-events-none"></i>
         </div>
-        <img src="${post.coverImage}" alt="${post.title}" class="w-20 h-20 rounded-xl object-cover shrink-0 border border-slate-100 pointer-events-none"
+        <img src="${post.coverImage}" alt="${post.title}" 
+             style="object-position: ${post.imagePosition || 'center 20%'}; object-fit: ${post.imageFit || 'cover'};"
+             class="w-20 h-20 rounded-xl object-cover shrink-0 border border-slate-100 pointer-events-none"
              onerror="this.src='https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=800&q=80'">
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 mb-1">
@@ -1211,6 +1234,52 @@ function editPost(id) {
   document.getElementById('post-content').value = post.content || '';
   document.getElementById('post-tags').value = Array.isArray(post.tags) ? post.tags.join(', ') : (post.tags || '');
 
+  // Framing
+  const pos = post.imagePosition || 'center 20%';
+  const fit = post.imageFit || 'cover';
+  const match = pos.match(/(\d+)%/);
+  const numVal = match ? parseInt(match[1]) : 20;
+
+  const slider = document.getElementById('post-pos-slider');
+  if (slider) slider.value = numVal;
+  const label = document.getElementById('post-pos-label');
+  if (label) label.textContent = `Vị trí (${numVal}%)`;
+  const posInput = document.getElementById('post-image-position');
+  if (posInput) posInput.value = pos;
+  const fitSelect = document.getElementById('post-image-fit');
+  if (fitSelect) fitSelect.value = fit;
+
+  const presets = document.querySelectorAll('.post-pos-preset');
+  presets.forEach(btn => {
+    const bVal = parseInt(btn.dataset.val, 10);
+    if (bVal === numVal) {
+      btn.classList.add('border-blue-500', 'bg-blue-50', 'text-blue-700', 'font-bold');
+      btn.classList.remove('border-slate-200', 'text-slate-700');
+    } else {
+      btn.classList.remove('border-blue-500', 'bg-blue-50', 'text-blue-700', 'font-bold');
+      btn.classList.add('border-slate-200', 'text-slate-700');
+    }
+  });
+
+  const previewContainer = document.getElementById('post-preview-container');
+  const previewImg = document.getElementById('post-preview-img');
+  const uploadPrompt = document.getElementById('post-upload-prompt');
+  const fileName = document.getElementById('post-file-name');
+
+  if (post.coverImage) {
+    if (previewImg) {
+      previewImg.src = post.coverImage;
+      previewImg.style.objectPosition = pos;
+      previewImg.style.objectFit = fit;
+    }
+    if (previewContainer) previewContainer.classList.remove('hidden');
+    if (uploadPrompt) uploadPrompt.classList.add('hidden');
+    if (fileName) fileName.textContent = 'Ảnh hiện tại (Bấm trên để thay ảnh mới)';
+  } else {
+    if (previewContainer) previewContainer.classList.add('hidden');
+    if (uploadPrompt) uploadPrompt.classList.remove('hidden');
+  }
+
   charCounter.textContent = `${postSummaryInput.value.length}/160`;
   btnCancelPost.classList.remove('hidden');
   document.getElementById('btn-save-post').innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Cập Nhật Bài Viết`;
@@ -1254,28 +1323,32 @@ formAddPost.addEventListener('submit', async (e) => {
   formData.append('category', document.getElementById('post-category').value);
   formData.append('readTime', document.getElementById('post-readtime').value.trim());
   formData.append('coverImage', document.getElementById('post-image-url').value.trim());
+  formData.append('imagePosition', document.getElementById('post-image-position')?.value || 'center 20%');
+  formData.append('imageFit', document.getElementById('post-image-fit')?.value || 'cover');
   formData.append('summary', document.getElementById('post-summary').value.trim());
   formData.append('content', document.getElementById('post-content').value.trim());
   formData.append('tags', document.getElementById('post-tags').value.trim());
 
   const fileInput = document.getElementById('post-file-input');
-  if (fileInput.files[0]) {
+  if (fileInput && fileInput.files[0]) {
     formData.append('coverImageFile', fileInput.files[0]);
   }
 
   try {
-    const url = isEditing ? `/api/posts/${postId}` : '/api/posts';
+    const url = isEditing ? `/api/posts/${postId}?folder=blog` : '/api/posts?folder=blog';
     const method = isEditing ? 'PUT' : 'POST';
 
     // If editing and no new file, we can send JSON
     let res;
-    if (isEditing && !fileInput.files[0]) {
+    if (isEditing && (!fileInput || !fileInput.files[0])) {
       const payload = {
         title: document.getElementById('post-title').value.trim(),
         slug: document.getElementById('post-slug').value.trim(),
         category: document.getElementById('post-category').value,
         readTime: document.getElementById('post-readtime').value.trim(),
         coverImage: document.getElementById('post-image-url').value.trim(),
+        imagePosition: document.getElementById('post-image-position')?.value || 'center 20%',
+        imageFit: document.getElementById('post-image-fit')?.value || 'cover',
         summary: document.getElementById('post-summary').value.trim(),
         content: document.getElementById('post-content').value.trim(),
         tags: document.getElementById('post-tags').value.split(',').map(s => s.trim()).filter(Boolean)
@@ -1302,6 +1375,9 @@ formAddPost.addEventListener('submit', async (e) => {
       formAddPost.reset();
       document.getElementById('post-id').value = '';
       btnCancelPost.classList.add('hidden');
+      document.getElementById('post-preview-container').classList.add('hidden');
+      document.getElementById('post-upload-prompt').classList.remove('hidden');
+      if (fileInput) fileInput.value = '';
       loadPosts();
     } else {
       alert(data.message || 'Lỗi khi xử lý bài viết!');
@@ -1505,20 +1581,57 @@ function setupImageDropzones() {
   const postFileName = document.getElementById('post-file-name');
   const postUploadPrompt = document.getElementById('post-upload-prompt');
 
-  postDropzone.addEventListener('click', () => postFileInput.click());
-  postFileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        postPreviewImg.src = event.target.result;
-        postFileName.textContent = file.name;
-        postPreviewContainer.classList.remove('hidden');
-        postUploadPrompt.classList.add('hidden');
-      };
-      reader.readAsDataURL(file);
-    }
-  });
+  if (postDropzone && postFileInput) {
+    postDropzone.addEventListener('click', () => postFileInput.click());
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      postDropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        postDropzone.classList.add('border-blue-500', 'bg-blue-50/50');
+      });
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+      postDropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        postDropzone.classList.remove('border-blue-500', 'bg-blue-50/50');
+      });
+    });
+    postDropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const file = dt.files[0];
+      if (file) {
+        postFileInput.files = dt.files;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          postPreviewImg.src = event.target.result;
+          postPreviewImg.style.objectPosition = document.getElementById('post-image-position')?.value || 'center 20%';
+          postPreviewImg.style.objectFit = document.getElementById('post-image-fit')?.value || 'cover';
+          postFileName.textContent = file.name;
+          postPreviewContainer.classList.remove('hidden');
+          postUploadPrompt.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    postFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          postPreviewImg.src = event.target.result;
+          postPreviewImg.style.objectPosition = document.getElementById('post-image-position')?.value || 'center 20%';
+          postPreviewImg.style.objectFit = document.getElementById('post-image-fit')?.value || 'cover';
+          postFileName.textContent = file.name;
+          postPreviewContainer.classList.remove('hidden');
+          postUploadPrompt.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
 }
 
 function setupFramingControls() {
@@ -1597,6 +1710,87 @@ function setupFramingControls() {
         if (previewContainer) previewContainer.classList.remove('hidden');
         if (uploadPrompt) uploadPrompt.classList.add('hidden');
         const fileName = document.getElementById('ach-file-name');
+        if (fileName) fileName.textContent = 'Ảnh từ liên kết';
+      }
+    });
+  }
+}
+
+function setupPostFramingControls() {
+  const slider = document.getElementById('post-pos-slider');
+  const posInput = document.getElementById('post-image-position');
+  const posLabel = document.getElementById('post-pos-label');
+  const fitSelect = document.getElementById('post-image-fit');
+  const previewImg = document.getElementById('post-preview-img');
+  const previewContainer = document.getElementById('post-preview-container');
+  const uploadPrompt = document.getElementById('post-upload-prompt');
+  const imageUrlInput = document.getElementById('post-image-url');
+  const presets = document.querySelectorAll('.post-pos-preset');
+
+  function updateFraming(valPercent) {
+    const num = parseInt(valPercent, 10);
+    const posStr = `center ${num}%`;
+    if (posInput) posInput.value = posStr;
+    if (slider) slider.value = num;
+    if (posLabel) {
+      if (num <= 25) {
+        posLabel.textContent = `Lấy rõ mặt (${num}%)`;
+      } else if (num >= 40 && num <= 60) {
+        posLabel.textContent = `Căn giữa (${num}%)`;
+      } else if (num >= 75) {
+        posLabel.textContent = `Căn dưới (${num}%)`;
+      } else {
+        posLabel.textContent = `Vị trí (${num}%)`;
+      }
+    }
+    if (previewImg) {
+      previewImg.style.objectPosition = posStr;
+    }
+
+    presets.forEach(btn => {
+      const bVal = parseInt(btn.dataset.val, 10);
+      if (bVal === num) {
+        btn.classList.add('border-blue-500', 'bg-blue-50', 'text-blue-700', 'font-bold');
+        btn.classList.remove('border-slate-200', 'text-slate-700');
+      } else {
+        btn.classList.remove('border-blue-500', 'bg-blue-50', 'text-blue-700', 'font-bold');
+        btn.classList.add('border-slate-200', 'text-slate-700');
+      }
+    });
+  }
+
+  if (slider) {
+    slider.addEventListener('input', (e) => {
+      updateFraming(e.target.value);
+    });
+  }
+
+  presets.forEach(btn => {
+    btn.addEventListener('click', () => {
+      updateFraming(btn.dataset.val || '20%');
+    });
+  });
+
+  if (fitSelect) {
+    fitSelect.addEventListener('change', (e) => {
+      if (previewImg) {
+        previewImg.style.objectFit = e.target.value;
+      }
+    });
+  }
+
+  if (imageUrlInput) {
+    imageUrlInput.addEventListener('input', (e) => {
+      const url = e.target.value.trim();
+      if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
+        if (previewImg) {
+          previewImg.src = url;
+          previewImg.style.objectPosition = posInput ? posInput.value : 'center 20%';
+          previewImg.style.objectFit = fitSelect ? fitSelect.value : 'cover';
+        }
+        if (previewContainer) previewContainer.classList.remove('hidden');
+        if (uploadPrompt) uploadPrompt.classList.add('hidden');
+        const fileName = document.getElementById('post-file-name');
         if (fileName) fileName.textContent = 'Ảnh từ liên kết';
       }
     });

@@ -119,6 +119,7 @@ function renderBlogPosts(posts) {
       <!-- COVER IMAGE -->
       <a href="blog-detail.html?slug=${post.slug}" class="relative h-48 overflow-hidden block bg-slate-100">
         <img src="${post.coverImage}" alt="${post.title}" loading="lazy"
+             style="object-position: ${post.imagePosition || 'center 20%'}; object-fit: ${post.imageFit || 'cover'};"
              class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
              onerror="this.src='https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=800&q=80'">
         <span class="absolute top-3 left-3 bg-white/95 backdrop-blur text-emerald-700 font-bold text-xs px-2.5 py-1 rounded-full shadow-xs">
@@ -208,6 +209,8 @@ async function initBlogDetail() {
   if (coverImg) {
     coverImg.src = post.coverImage;
     coverImg.alt = post.title;
+    coverImg.style.objectPosition = post.imagePosition || 'center 20%';
+    coverImg.style.objectFit = post.imageFit || 'cover';
   }
 
   const summaryEl = document.getElementById('post-detail-summary');
@@ -261,7 +264,9 @@ async function initBlogDetail() {
 
     relatedContainer.innerHTML = displayPosts.map(rp => `
       <a href="blog-detail.html?slug=${rp.slug}" class="flex gap-3 bg-white p-3 rounded-xl border border-slate-200 hover:border-emerald-500 hover:shadow-xs transition group">
-        <img src="${rp.coverImage}" alt="${rp.title}" class="w-20 h-20 rounded-lg object-cover shrink-0">
+        <img src="${rp.coverImage}" alt="${rp.title}" 
+             style="object-position: ${rp.imagePosition || 'center 20%'}; object-fit: ${rp.imageFit || 'cover'};"
+             class="w-20 h-20 rounded-lg object-cover shrink-0">
         <div>
           <span class="text-[11px] font-semibold text-emerald-600">${rp.category}</span>
           <h4 class="font-bold text-xs text-slate-800 line-clamp-2 group-hover:text-emerald-600 mt-1">${rp.title}</h4>
