@@ -80,43 +80,80 @@ function initStickyHeader() {
 }
 
 // =================================================================
-// 4. MOBILE DRAWER MENU
+// 4. MOBILE DRAWER MENU & SMOOTH HEADER NAVIGATION
 // =================================================================
 function initMobileMenu() {
   const menuBtn = document.getElementById('mobile-menu-btn');
   const mobileMenu = document.getElementById('mobile-menu');
   const overlay = document.getElementById('mobile-menu-overlay');
   const closeBtn = document.getElementById('mobile-menu-close');
+  const logoLink = document.getElementById('header-logo-link');
 
-  if (!menuBtn || !mobileMenu) return;
-
-  function openMenu() {
-    mobileMenu.classList.add('open');
-    if (overlay) overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeMenu() {
-    mobileMenu.classList.remove('open');
-    if (overlay) overlay.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  menuBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (mobileMenu.classList.contains('open')) {
-      closeMenu();
-    } else {
-      openMenu();
+  if (menuBtn && mobileMenu) {
+    function openMenu() {
+      mobileMenu.classList.add('open');
+      if (overlay) overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
     }
-  });
 
-  if (closeBtn) closeBtn.addEventListener('click', closeMenu);
-  if (overlay) overlay.addEventListener('click', closeMenu);
+    function closeMenu() {
+      mobileMenu.classList.remove('open');
+      if (overlay) overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
 
-  mobileMenu.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', closeMenu);
-  });
+    const toggleMenu = (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (mobileMenu.classList.contains('open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    };
+
+    menuBtn.addEventListener('click', toggleMenu);
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeMenu();
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', closeMenu);
+    }
+
+    // Đóng menu khi bấm phím Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mobileMenu.classList.contains('open')) {
+        closeMenu();
+      }
+    });
+
+    // Tự động đóng menu khi bấm vào bất kỳ liên kết nào trong menu drawer
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        closeMenu();
+      });
+    });
+  }
+
+  // Tối ưu khi người dùng bấm vào Logo ở góc trên bên trái:
+  // Nếu đang ở trang chủ, cuộn mượt lên đầu trang (Smooth scroll to top)
+  if (logoLink) {
+    logoLink.addEventListener('click', (e) => {
+      const currentPath = window.location.pathname;
+      const isHome = currentPath === '/' || currentPath.endsWith('index.html') || currentPath === '';
+      if (isHome && !window.location.search && (!window.location.hash || window.location.hash === '#' || window.location.hash === '')) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
 }
 
 // =================================================================
@@ -672,12 +709,16 @@ function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
       const targetId = this.getAttribute('href');
-      if (targetId === '#') return;
+      if (!targetId || targetId === '#' || targetId === '#!') return;
 
-      const targetElement = document.querySelector(targetId);
-      if (targetElement) {
-        e.preventDefault();
-        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      try {
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          e.preventDefault();
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } catch (err) {
+        // Safe fallback for irregular selectors
       }
     });
   });

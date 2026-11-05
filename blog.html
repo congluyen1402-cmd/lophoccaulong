@@ -129,11 +129,14 @@
         <a href="index.html#faq" class="hover:text-court-600 transition">Hỏi đáp</a>
       </nav>
 
-      <!-- CTA BUTTON -->
-      <div class="flex items-center gap-3">
-        <a href="index.html#dang-ky" class="inline-flex items-center justify-center px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wide bg-amber-400 hover:bg-amber-500 text-slate-950 transition shadow-sm">
+      <!-- CTA & MOBILE MENU TOGGLE -->
+      <div class="flex items-center gap-2.5">
+        <a href="index.html#dang-ky" class="inline-flex items-center justify-center px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl font-bold text-xs uppercase tracking-wide bg-amber-400 hover:bg-amber-500 text-slate-950 transition shadow-sm">
           Đăng Ký Học Thử
         </a>
+        <button id="mobile-menu-btn" type="button" class="lg:hidden w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-slate-800 hover:bg-slate-50 transition active:scale-95 touch-manipulation cursor-pointer select-none" aria-label="Mở menu điều hướng">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
       </div>
     </div>
   </header>
@@ -335,6 +338,68 @@
       Lớp Học Cầu Lông Q4 &amp; Q7 © 2026. All rights reserved. • <a href="index.html" class="hover:text-emerald-400">Trang Chủ</a>
     </div>
   </footer>
+
+  <!-- Mobile Drawer Overlay -->
+  <div id="mobile-menu-overlay" class="drawer-overlay fixed inset-0 bg-slate-900/60 lg:hidden" style="z-index: 9998;"></div>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-menu" class="mobile-drawer fixed top-0 right-0 w-80 max-w-[85vw] h-full bg-white lg:hidden p-5 sm:p-6 shadow-2xl flex flex-col justify-between overflow-y-auto" style="z-index: 9999;">
+    <div>
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+        <div class="flex items-center gap-2.5">
+          <img src="/assets/logo-transparent.png" alt="Logo Lớp Học Cầu Lông" class="w-8 h-8 object-contain rounded-lg p-0.5 shadow-xs">
+          <span class="font-heading font-black text-slate-900 text-sm">LOPHOCCAULONG.COM</span>
+        </div>
+        <button id="mobile-menu-close" type="button" class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-800 active:scale-90 cursor-pointer select-none" aria-label="Đóng menu">
+          ✕
+        </button>
+      </div>
+
+      <nav class="flex flex-col gap-1.5 font-medium text-slate-700 text-sm" aria-label="Menu di động">
+        <a href="index.html" class="py-2.5 px-3 rounded-xl hover:bg-slate-50 hover:text-court-600 transition-colors flex items-center justify-between">
+          <span>🏠 Trang chủ</span>
+          <span class="text-slate-400 text-xs">→</span>
+        </a>
+        <a href="index.html#khoa-hoc" class="py-2.5 px-3 rounded-xl hover:bg-slate-50 hover:text-court-600 transition-colors flex items-center justify-between">
+          <span>📚 Các khóa học</span>
+          <span class="text-slate-400 text-xs">→</span>
+        </a>
+        <a href="huan-luyen-vien.html" class="py-2.5 px-3 rounded-xl hover:bg-slate-50 hover:text-court-600 transition-colors flex items-center justify-between">
+          <span>🎖️ HLV Trần Công Luyện</span>
+          <span class="text-slate-400 text-xs">→</span>
+        </a>
+        <a href="index.html#lich-hoc" class="py-2.5 px-3 rounded-xl hover:bg-slate-50 hover:text-court-600 transition-colors flex items-center justify-between">
+          <span>🏟️ Lịch &amp; Sân tập Q4 - Q7</span>
+          <span class="text-slate-400 text-xs">→</span>
+        </a>
+        <a href="index.html#thanh-tich" class="py-2.5 px-3 rounded-xl hover:bg-slate-50 hover:text-court-600 transition-colors flex items-center justify-between">
+          <span>🏆 Thành tích học viên</span>
+          <span class="text-slate-400 text-xs">→</span>
+        </a>
+        <a href="blog.html" class="py-2.5 px-3 rounded-xl bg-court-50 text-court-700 font-bold transition-colors flex items-center justify-between">
+          <span>📖 Blog &amp; Kỹ thuật cầu lông</span>
+          <span class="text-court-600 text-xs">✓</span>
+        </a>
+        <a href="index.html#hoc-phi" class="py-2.5 px-3 rounded-xl hover:bg-slate-50 hover:text-court-600 transition-colors flex items-center justify-between">
+          <span>💰 Bảng học phí &amp; Ưu đãi</span>
+          <span class="text-slate-400 text-xs">→</span>
+        </a>
+        <a href="index.html#hoi-dap" class="py-2.5 px-3 rounded-xl hover:bg-slate-50 hover:text-court-600 transition-colors flex items-center justify-between">
+          <span>❓ Câu hỏi thường gặp</span>
+          <span class="text-slate-400 text-xs">→</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="pt-5 border-t border-slate-100 space-y-2.5">
+      <a href="index.html#dang-ky" class="btn-accent-sport w-full text-center py-2.5 text-xs font-bold block rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition">
+        Đăng Ký Học Thử Ngay
+      </a>
+      <a href="tel:0813100402" class="w-full text-center py-2.5 text-xs font-bold block rounded-xl bg-slate-100 text-slate-800 hover:bg-slate-200 transition">
+        📞 Hotline: 0813.100.402
+      </a>
+    </div>
+  </div>
 
   <!-- BLOG JS -->
   <script src="blog.js"></script>
