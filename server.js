@@ -1107,6 +1107,16 @@ app.get('/blog/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, 'blog-detail.html'));
 });
 
+// Phục vụ file xác thực Google Search Console
+app.get('/google:hash.html', (req, res) => {
+  const file = `google${req.params.hash}.html`;
+  const filePath = path.join(__dirname, file);
+  if (fs.existsSync(filePath)) {
+    return res.sendFile(filePath);
+  }
+  res.status(404).send('Google verification file not found');
+});
+
 // Middleware xử lý lỗi upload Multer & lỗi server tập trung
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
