@@ -1,6 +1,8 @@
 # robots.txt for https://lophoccaulong.com
 User-agent: *
 Allow: /
+Allow: /huan-luyen-vien
+Allow: /huan-luyen-vien.html
 Allow: /blog.html
 Allow: /blog-detail.html
 Disallow: /admin.html

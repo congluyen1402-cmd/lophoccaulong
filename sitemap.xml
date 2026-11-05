@@ -1,81 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- TRANG CHỦ -->
   <url>
     <loc>https://lophoccaulong.com/</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-  <url>
-    <loc>https://lophoccaulong.com/#khoa-hoc</loc>
-    <lastmod>2026-11-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
+
+  <!-- TRANG THÔNG TIN HUẤN LUYỆN VIÊN TRƯỞNG -->
   <url>
     <loc>https://lophoccaulong.com/huan-luyen-vien.html</loc>
-    <lastmod>2026-11-04</lastmod>
+    <lastmod>2026-11-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-  <url>
-    <loc>https://lophoccaulong.com/#lich-hoc</loc>
-    <lastmod>2026-11-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://lophoccaulong.com/#thanh-tich</loc>
-    <lastmod>2026-11-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
+
+  <!-- TRANG CHUYÊN MỤC BLOG KIẾN THỨC CẦU LÔNG -->
   <url>
     <loc>https://lophoccaulong.com/blog.html</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
+
+  <!-- BÀI VIẾT 1: KỸ THUẬT CẦM VỢT V-GRIP -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=ky-thuat-cam-vot-v-grip-va-phat-luc-co-tay</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- BÀI VIẾT 2: BÍ QUYẾT CHỌN VỢT CẦU LÔNG -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=bi-quyet-chon-vot-cau-long-cho-nguoi-moi-bat-dau</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- BÀI VIẾT 3: 5 BÀI TẬP BỘ PHÁP DI CHUYỂN -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=5-bai-tap-bo-phap-di-chuyen-6-goc-san</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- BÀI VIẾT 4: REVIEW SÂN CẦU LÔNG T12 & DNI SPORT -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=review-san-cau-long-t12-q4-va-dni-sport-q7</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-05</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://lophoccaulong.com/#hoc-phi</loc>
-    <lastmod>2026-11-03</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://lophoccaulong.com/#hoi-dap</loc>
-    <lastmod>2026-11-03</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://lophoccaulong.com/#dang-ky</loc>
-    <lastmod>2026-11-03</lastmod>
-    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 </urlset>
