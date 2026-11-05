@@ -341,6 +341,7 @@ app.use('/uploads', (req, res, next) => {
   next();
 });
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use(express.static(path.join(__dirname)));
 
 // Cấu hình Multer upload file tuyệt đối an toàn
