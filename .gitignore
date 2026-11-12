@@ -19,3 +19,7 @@ Thumbs.db
 # Local Backups
 data/backup_*/
 
+# Local Agent Skills & Workflows
+.agent/
+.agents/
+
