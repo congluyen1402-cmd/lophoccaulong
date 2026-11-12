@@ -128,6 +128,93 @@
       display: block;
       -webkit-overflow-scrolling: touch;
     }
+
+    /* ============================================================== */
+    /* TỐI ƯU HỘP KÊU GỌI (CTA) TRONG BÀI VIẾT (CHUẨN 100% IOS & ANDROID) */
+    /* ============================================================== */
+    .article-body .article-cta-box,
+    .article-body .cta-box,
+    .article-body [class*="bg-emerald-900"],
+    .article-body [class*="bg-slate-900"],
+    .article-body [class*="bg-gradient"] {
+      position: relative;
+      border-radius: 1.25rem;
+      box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.35);
+      border: 2px solid rgba(52, 211, 153, 0.4);
+    }
+
+    .article-body .article-cta-box h2,
+    .article-body .article-cta-box h3,
+    .article-body .cta-box h2,
+    .article-body .cta-box h3,
+    .article-body [class*="bg-emerald-900"] h2,
+    .article-body [class*="bg-emerald-900"] h3,
+    .article-body [class*="bg-slate-900"] h2,
+    .article-body [class*="bg-slate-900"] h3,
+    .article-body [class*="bg-gradient"] h2,
+    .article-body [class*="bg-gradient"] h3 {
+      color: #FFFFFF !important;
+      border-bottom: none !important;
+      padding-bottom: 0 !important;
+      margin-top: 0.4rem !important;
+      margin-bottom: 0.6rem !important;
+      font-weight: 800 !important;
+      letter-spacing: -0.015em !important;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .article-body .article-cta-box p,
+    .article-body .cta-box p,
+    .article-body [class*="bg-emerald-900"] p,
+    .article-body [class*="bg-slate-900"] p,
+    .article-body [class*="bg-gradient"] p {
+      color: #F8FAFC !important;
+      font-size: 0.9rem !important;
+      line-height: 1.7 !important;
+      margin-bottom: 1.25rem !important;
+      opacity: 1 !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .article-body .article-cta-box strong,
+    .article-body [class*="bg-emerald-900"] strong,
+    .article-body [class*="bg-slate-900"] strong,
+    .article-body [class*="bg-gradient"] strong {
+      color: #FDE047 !important;
+    }
+
+    /* Touch-friendly buttons for iOS Safari & Android Chrome */
+    .article-body .article-cta-box .btn-cta-gold,
+    .article-body .btn-cta-gold {
+      background-color: #FBBF24 !important;
+      color: #0F172A !important;
+      font-weight: 800 !important;
+      text-decoration: none !important;
+      box-shadow: 0 4px 14px rgba(251, 191, 36, 0.4) !important;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .article-body .article-cta-box .btn-cta-gold:hover,
+    .article-body .article-cta-box .btn-cta-gold:active {
+      background-color: #F59E0B !important;
+      transform: scale(0.98);
+    }
+
+    .article-body .article-cta-box .btn-cta-outline,
+    .article-body .btn-cta-outline {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+      color: #FFFFFF !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+      font-weight: 700 !important;
+      text-decoration: none !important;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .article-body .article-cta-box .btn-cta-outline:hover,
+    .article-body .article-cta-box .btn-cta-outline:active {
+      background-color: rgba(255, 255, 255, 0.25) !important;
+      transform: scale(0.98);
+    }
   </style>
 
   <!-- Dynamic JSON-LD will be injected by blog.js -->
@@ -144,7 +231,7 @@
   }
   </script>
 </head>
-<body class="bg-[#F8FAFC] text-slate-800 antialiased font-sans flex flex-col min-h-screen">
+<body class="bg-[#F8FAFC] text-slate-800 antialiased font-sans flex flex-col min-h-screen pb-16 sm:pb-0">
 
   <!-- ================= TOP HEADER ================= -->
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
@@ -211,11 +298,11 @@
 
       <div class="mt-4 flex items-center justify-between border-y border-slate-200 py-3 text-xs text-slate-500">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-xs">
-            HLV
+          <div class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-xs shadow-xs">
+            BHL
           </div>
           <div>
-            <p id="post-detail-author" class="font-bold text-slate-900 text-xs">HLV Trưởng - lophoccaulong.com</p>
+            <p id="post-detail-author" class="font-bold text-slate-900 text-xs">Ban Huấn Luyện - lophoccaulong.com</p>
             <p id="post-detail-date" class="text-[11px] text-slate-400">Đăng ngày 01/03/2026</p>
           </div>
         </div>
@@ -249,22 +336,22 @@
     </article>
 
     <!-- IN-ARTICLE CTA BANNER -->
-    <div class="my-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white border border-slate-700 shadow-xl relative overflow-hidden">
+    <div class="my-8 sm:my-10 p-5 sm:p-8 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white border border-slate-700 shadow-xl relative overflow-hidden">
       <div class="relative z-10 max-w-xl">
         <span class="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xs uppercase tracking-wide mb-2">
           🔥 Ưu Đãi Dành Riêng Cho Độc Giả
         </span>
-        <h3 class="text-xl sm:text-2xl font-bold font-heading text-white">
-          Thực Hành Ngay Với HLV Tại Sân T12 & Sân Dni Sport
+        <h3 class="text-lg sm:text-2xl font-bold font-heading text-white leading-tight">
+          Thực Hành Ngay Cùng Ban Huấn Luyện Tại Sân T12 &amp; Sân Dni Sport
         </h3>
         <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-          Lý thuyết chỉ là bước khởi đầu. Hãy đến sân để HLV cầm tay nắn chỉnh từng bước chân, góc phát lực cổ tay và hỗ trợ mượn vợt tập miễn phí.
+          Lý thuyết chỉ là bước khởi đầu. Hãy đến sân để Ban Huấn Luyện trực tiếp nắn chỉnh từng bước chân, góc phát lực cổ tay và hỗ trợ mượn vợt tập miễn phí.
         </p>
-        <div class="mt-5 flex flex-wrap gap-3">
-          <a href="index.html#dang-ky" class="px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs uppercase tracking-wide transition shadow-lg">
+        <div class="mt-5 flex flex-col sm:flex-row gap-2.5 sm:gap-3">
+          <a href="index.html#dang-ky" class="w-full sm:w-auto px-6 py-3.5 min-h-[48px] rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-extrabold text-xs sm:text-sm uppercase tracking-wide transition shadow-lg flex items-center justify-center text-center">
             Đăng Ký Học Thử Ngay
           </a>
-          <a href="https://www.facebook.com/profile.php?id=61565837504855" target="_blank" rel="noopener" class="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition flex items-center gap-1.5">
+          <a href="https://www.facebook.com/profile.php?id=61565837504855" target="_blank" rel="noopener" class="w-full sm:w-auto px-5 py-3.5 min-h-[48px] rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 border border-white/20 text-center">
             <i data-lucide="message-circle" class="w-4 h-4"></i> Nhắn Fanpage
           </a>
         </div>

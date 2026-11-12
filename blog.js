@@ -149,7 +149,7 @@ function renderBlogPosts(posts) {
           <a href="blog-detail.html?slug=${post.slug}" class="text-xs font-bold text-emerald-600 group-hover:text-emerald-700 flex items-center gap-1">
             Đọc bài viết <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition"></i>
           </a>
-          <span class="text-[11px] text-slate-400">HLV Q4 & Q7</span>
+          <span class="text-[11px] text-slate-400">Ban Huấn Luyện</span>
         </div>
       </div>
     </article>
@@ -200,7 +200,13 @@ async function initBlogDetail() {
   if (readTimeEl) readTimeEl.textContent = post.readTime;
 
   const authorEl = document.getElementById('post-detail-author');
-  if (authorEl) authorEl.textContent = post.author || 'Ban Huấn Luyện - lophoccaulong.com';
+  if (authorEl) {
+    let authorText = post.author || 'Ban Huấn Luyện - lophoccaulong.com';
+    authorText = authorText.replace(/HLV Trưởng Trần Công Luyện/gi, 'Ban Huấn Luyện')
+                           .replace(/Trần Công Luyện/gi, 'Ban Huấn Luyện')
+                           .replace(/HLV Trưởng/gi, 'Ban Huấn Luyện');
+    authorEl.textContent = authorText;
+  }
 
   const dateEl = document.getElementById('post-detail-date');
   if (dateEl) dateEl.textContent = `Đăng ngày ${post.date}`;
@@ -240,8 +246,8 @@ async function initBlogDetail() {
       "image": post.coverImage,
       "datePublished": post.date,
       "author": {
-        "@type": "Person",
-        "name": post.author || "HLV Lớp Học Cầu Lông Q4 & Q7"
+        "@type": "Organization",
+        "name": "Ban Huấn Luyện - lophoccaulong.com"
       },
       "publisher": {
         "@type": "Organization",

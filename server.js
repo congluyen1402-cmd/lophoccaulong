@@ -878,12 +878,17 @@ app.post('/api/posts', requireAdmin, upload.single('coverImageFile'), (req, res)
     parsedTags = body.tags.split(',').map(t => sanitizeInput(t.trim())).filter(Boolean);
   }
 
+  let author = sanitizeInput(body.author || 'Ban Huấn Luyện - lophoccaulong.com');
+  author = author.replace(/HLV Trưởng Trần Công Luyện/gi, 'Ban Huấn Luyện')
+                 .replace(/Trần Công Luyện/gi, 'Ban Huấn Luyện')
+                 .replace(/HLV Trưởng/gi, 'Ban Huấn Luyện');
+
   const newPost = {
     id: 'post-' + Date.now(),
     title: sanitizeInput(rawTitle),
     slug: uniqueSlug,
     category: sanitizeInput(body.category || 'Kỹ thuật cầu lông'),
-    author: sanitizeInput(body.author || 'Ban Huấn Luyện - lophoccaulong.com'),
+    author: author,
     date: sanitizeInput(body.date || new Date().toISOString().split('T')[0]),
     readTime: sanitizeInput(body.readTime || '5 phút đọc'),
     coverImage: coverImage,
@@ -954,12 +959,21 @@ app.put('/api/posts/:id', requireAdmin, upload.single('coverImageFile'), (req, r
     counter++;
   }
 
+  let updatedAuthor = body.author !== undefined ? sanitizeInput(body.author) : posts[idx].author;
+  if (updatedAuthor) {
+    updatedAuthor = updatedAuthor.replace(/HLV Trưởng Trần Công Luyện/gi, 'Ban Huấn Luyện')
+                                 .replace(/Trần Công Luyện/gi, 'Ban Huấn Luyện')
+                                 .replace(/HLV Trưởng/gi, 'Ban Huấn Luyện');
+  } else {
+    updatedAuthor = 'Ban Huấn Luyện - lophoccaulong.com';
+  }
+
   posts[idx] = {
     ...posts[idx],
     title: newTitle,
     slug: uniqueSlug,
     category: body.category !== undefined ? sanitizeInput(body.category) : posts[idx].category,
-    author: body.author !== undefined ? sanitizeInput(body.author) : posts[idx].author,
+    author: updatedAuthor,
     date: body.date !== undefined ? sanitizeInput(body.date) : posts[idx].date,
     readTime: body.readTime !== undefined ? sanitizeInput(body.readTime) : posts[idx].readTime,
     coverImage: coverImage,
