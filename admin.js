@@ -1083,9 +1083,18 @@ const postSlugInput = document.getElementById('post-slug');
 const btnCancelPost = document.getElementById('btn-cancel-post');
 
 function setupPostEditor() {
-  postSummaryInput.addEventListener('input', () => {
-    charCounter.textContent = `${postSummaryInput.value.length}/160`;
-  });
+  const updateSummaryCounter = () => {
+    const len = postSummaryInput.value.length;
+    charCounter.textContent = `${len}/160`;
+    if (len > 160) {
+      charCounter.classList.add('text-amber-600', 'font-bold');
+      charCounter.classList.remove('text-slate-400');
+    } else {
+      charCounter.classList.remove('text-amber-600', 'font-bold');
+      charCounter.classList.add('text-slate-400');
+    }
+  };
+  postSummaryInput.addEventListener('input', updateSummaryCounter);
 
   postTitleInput.addEventListener('input', () => {
     if (!document.getElementById('post-id').value) {
@@ -1118,6 +1127,8 @@ function setupPostEditor() {
     if (fitSelect) fitSelect.value = 'cover';
     const fileInput = document.getElementById('post-file-input');
     if (fileInput) fileInput.value = '';
+    charCounter.textContent = '0/160';
+    charCounter.className = 'text-slate-400';
     const presets = document.querySelectorAll('.post-pos-preset');
     presets.forEach(b => {
       if (b.dataset.val === '20%') {
@@ -1280,7 +1291,15 @@ function editPost(id) {
     if (uploadPrompt) uploadPrompt.classList.remove('hidden');
   }
 
-  charCounter.textContent = `${postSummaryInput.value.length}/160`;
+  const sLen = (post.summary || '').length;
+  charCounter.textContent = `${sLen}/160`;
+  if (sLen > 160) {
+    charCounter.classList.add('text-amber-600', 'font-bold');
+    charCounter.classList.remove('text-slate-400');
+  } else {
+    charCounter.classList.remove('text-amber-600', 'font-bold');
+    charCounter.classList.add('text-slate-400');
+  }
   btnCancelPost.classList.remove('hidden');
   document.getElementById('btn-save-post').innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Cập Nhật Bài Viết`;
   refreshIcons();
@@ -1290,11 +1309,23 @@ function editPost(id) {
 
 async function deletePost(id) {
   if (!confirm('Bạn có chắc muốn xóa bài viết này?')) return;
+  if (!AUTH_TOKEN) {
+    alert('Phiên đăng nhập quản trị đã hết hạn. Vui lòng đăng nhập lại!');
+    loginModal.classList.remove('hidden');
+    return;
+  }
   try {
     const res = await fetch(`/api/posts/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
     });
+    if (res.status === 401 || res.status === 403) {
+      alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!');
+      AUTH_TOKEN = '';
+      localStorage.removeItem('caulong_admin_token');
+      loginModal.classList.remove('hidden');
+      return;
+    }
     const data = await res.json();
     if (data.success) {
       alert('Đã xóa bài viết!');
@@ -1310,6 +1341,20 @@ async function deletePost(id) {
 // Form Add/Edit Post Submission
 formAddPost.addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  const title = document.getElementById('post-title').value.trim();
+  if (!title) {
+    alert('Vui lòng nhập tiêu đề bài viết (H1)!');
+    document.getElementById('post-title').focus();
+    return;
+  }
+
+  if (!AUTH_TOKEN) {
+    alert('Phiên đăng nhập quản trị đã hết hạn hoặc chưa đăng nhập. Vui lòng đăng nhập lại!');
+    loginModal.classList.remove('hidden');
+    return;
+  }
+
   const btn = document.getElementById('btn-save-post');
   btn.disabled = true;
   btn.innerHTML = `<span class="animate-spin inline-block mr-2">🔄</span> Đang lưu...`;
@@ -1317,8 +1362,11 @@ formAddPost.addEventListener('submit', async (e) => {
   const postId = document.getElementById('post-id').value;
   const isEditing = Boolean(postId);
 
+  const fileInput = document.getElementById('post-file-input');
+  const hasNewFile = Boolean(fileInput && fileInput.files && fileInput.files[0]);
+
   const formData = new FormData();
-  formData.append('title', document.getElementById('post-title').value.trim());
+  formData.append('title', title);
   formData.append('slug', document.getElementById('post-slug').value.trim());
   formData.append('category', document.getElementById('post-category').value);
   formData.append('readTime', document.getElementById('post-readtime').value.trim());
@@ -1329,8 +1377,7 @@ formAddPost.addEventListener('submit', async (e) => {
   formData.append('content', document.getElementById('post-content').value.trim());
   formData.append('tags', document.getElementById('post-tags').value.trim());
 
-  const fileInput = document.getElementById('post-file-input');
-  if (fileInput && fileInput.files[0]) {
+  if (hasNewFile) {
     formData.append('coverImageFile', fileInput.files[0]);
   }
 
@@ -1338,11 +1385,10 @@ formAddPost.addEventListener('submit', async (e) => {
     const url = isEditing ? `/api/posts/${postId}?folder=blog` : '/api/posts?folder=blog';
     const method = isEditing ? 'PUT' : 'POST';
 
-    // If editing and no new file, we can send JSON
     let res;
-    if (isEditing && (!fileInput || !fileInput.files[0])) {
+    if (isEditing && !hasNewFile) {
       const payload = {
-        title: document.getElementById('post-title').value.trim(),
+        title: title,
         slug: document.getElementById('post-slug').value.trim(),
         category: document.getElementById('post-category').value,
         readTime: document.getElementById('post-readtime').value.trim(),
@@ -1369,24 +1415,39 @@ formAddPost.addEventListener('submit', async (e) => {
       });
     }
 
+    if (res.status === 401 || res.status === 403) {
+      const errJson = await res.json().catch(() => ({}));
+      alert(errJson.message || 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để tiếp tục!');
+      AUTH_TOKEN = '';
+      localStorage.removeItem('caulong_admin_token');
+      loginModal.classList.remove('hidden');
+      return;
+    }
+
     const data = await res.json();
     if (data.success) {
-      alert(isEditing ? 'Cập nhật bài viết thành công!' : 'Đã đăng bài viết SEO mới!');
+      alert(isEditing ? 'Cập nhật bài viết thành công!' : 'Đã đăng bài viết SEO mới thành công!');
       formAddPost.reset();
       document.getElementById('post-id').value = '';
       btnCancelPost.classList.add('hidden');
       document.getElementById('post-preview-container').classList.add('hidden');
       document.getElementById('post-upload-prompt').classList.remove('hidden');
       if (fileInput) fileInput.value = '';
+      charCounter.textContent = '0/160';
+      charCounter.className = 'text-slate-400';
       loadPosts();
     } else {
       alert(data.message || 'Lỗi khi xử lý bài viết!');
     }
   } catch (err) {
-    alert('Không thể kết nối máy chủ!');
+    console.error('Lỗi lưu bài viết:', err);
+    alert('Không thể kết nối máy chủ hoặc lỗi đường truyền!');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i> Xuất Bản Bài Viết`;
+    const stillEditing = Boolean(document.getElementById('post-id').value);
+    btn.innerHTML = stillEditing
+      ? `<i data-lucide="check" class="w-4 h-4"></i> Cập Nhật Bài Viết`
+      : `<i data-lucide="send" class="w-4 h-4"></i> Xuất Bản Bài Viết`;
     refreshIcons();
   }
 });

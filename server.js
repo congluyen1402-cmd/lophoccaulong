@@ -60,19 +60,54 @@ function getAuthConfig() {
   return defaultConfig;
 }
 
-// Lưu trữ token bảo mật ngẫu nhiên trong bộ nhớ máy chủ (Session Store)
-const activeSessions = new Map(); // token -> { username, expiresAt }
+// Lưu trữ phiên đăng nhập quản trị viên bền vững (Chống mất phiên khi Render khởi động lại)
+const SESSIONS_FILE = path.join(__dirname, 'data', 'sessions.json');
+
+function loadSessions() {
+  const map = new Map();
+  try {
+    if (fs.existsSync(SESSIONS_FILE)) {
+      const data = JSON.parse(fs.readFileSync(SESSIONS_FILE, 'utf8'));
+      const now = Date.now();
+      if (Array.isArray(data)) {
+        data.forEach(([token, sess]) => {
+          if (token && sess && sess.expiresAt > now) {
+            map.set(token, sess);
+          }
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Lỗi nạp sessions.json:', err.message);
+  }
+  return map;
+}
+
+function saveSessions(map) {
+  try {
+    const now = Date.now();
+    const arr = Array.from(map.entries()).filter(([_, s]) => s && s.expiresAt > now);
+    fs.writeFileSync(SESSIONS_FILE, JSON.stringify(arr, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Lỗi lưu sessions.json:', err.message);
+  }
+}
+
+const activeSessions = loadSessions();
 const loginAttempts = new Map(); // ip -> { count, lockedUntil }
 const registrationRateLimit = new Map(); // ip -> [timestamps]
 
 // Dọn dẹp phiên hết hạn định kỳ
 setInterval(() => {
   const now = Date.now();
+  let changed = false;
   for (const [token, session] of activeSessions.entries()) {
     if (session.expiresAt < now) {
       activeSessions.delete(token);
+      changed = true;
     }
   }
+  if (changed) saveSessions(activeSessions);
 }, 30 * 60 * 1000);
 
 // Helper đọc/ghi dữ liệu JSON
@@ -448,6 +483,7 @@ app.post('/api/auth/login', (req, res) => {
     const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = now + (7 * 24 * 60 * 60 * 1000);
     activeSessions.set(token, { username, expiresAt });
+    saveSessions(activeSessions);
 
     return res.json({
       success: true,
@@ -508,6 +544,7 @@ app.post('/api/auth/change-password', requireAdmin, (req, res) => {
 
   // Hủy các phiên đăng nhập cũ để bắt buộc đăng nhập lại
   activeSessions.clear();
+  saveSessions(activeSessions);
 
   res.json({ success: true, message: 'Đổi mật khẩu thành công! Vui lòng đăng nhập lại với mật khẩu mới.' });
 });
@@ -802,6 +839,11 @@ app.post('/api/posts', requireAdmin, upload.single('coverImageFile'), (req, res)
   const posts = readJson('posts.json', []);
   const body = req.body;
 
+  const rawTitle = body.title ? body.title.toString().trim() : '';
+  if (!rawTitle) {
+    return res.status(400).json({ success: false, message: 'Vui lòng nhập tiêu đề bài viết!' });
+  }
+
   let coverImage = sanitizeInput(body.coverImage || '');
   if (req.file) {
     coverImage = `/uploads/blog/${req.file.filename}`;
@@ -811,8 +853,8 @@ app.post('/api/posts', requireAdmin, upload.single('coverImageFile'), (req, res)
   }
 
   let slug = sanitizeInput(body.slug || '');
-  if (!slug && body.title) {
-    slug = body.title
+  if (!slug && rawTitle) {
+    slug = rawTitle
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
@@ -832,13 +874,13 @@ app.post('/api/posts', requireAdmin, upload.single('coverImageFile'), (req, res)
   let parsedTags = [];
   if (Array.isArray(body.tags)) {
     parsedTags = body.tags.map(sanitizeInput);
-  } else if (typeof body.tags === 'string') {
+  } else if (typeof body.tags === 'string' && body.tags.trim()) {
     parsedTags = body.tags.split(',').map(t => sanitizeInput(t.trim())).filter(Boolean);
   }
 
   const newPost = {
     id: 'post-' + Date.now(),
-    title: sanitizeInput(body.title || 'Bài viết kỹ thuật cầu lông mới'),
+    title: sanitizeInput(rawTitle),
     slug: uniqueSlug,
     category: sanitizeInput(body.category || 'Kỹ thuật cầu lông'),
     author: sanitizeInput(body.author || 'Ban Huấn Luyện - lophoccaulong.com'),
@@ -850,12 +892,15 @@ app.post('/api/posts', requireAdmin, upload.single('coverImageFile'), (req, res)
     summary: sanitizeInput(body.summary || ''),
     content: body.content || '', // Cho phép HTML có cấu trúc chuẩn cho bài viết
     tags: parsedTags,
-    metaTitle: sanitizeInput(body.metaTitle || (body.title + ' | lophoccaulong.com')),
+    metaTitle: sanitizeInput(body.metaTitle || (rawTitle + ' | lophoccaulong.com')),
     metaDesc: sanitizeInput(body.metaDesc || body.summary || '')
   };
 
   posts.unshift(newPost);
-  writeJson('posts.json', posts);
+  const writeSuccess = writeJson('posts.json', posts);
+  if (!writeSuccess) {
+    return res.status(500).json({ success: false, message: 'Lỗi ghi bài viết vào ổ đĩa máy chủ!' });
+  }
 
   res.status(201).json({
     success: true,
@@ -875,26 +920,63 @@ app.put('/api/posts/:id', requireAdmin, upload.single('coverImageFile'), (req, r
   let coverImage = posts[idx].coverImage;
   if (req.file) {
     coverImage = `/uploads/blog/${req.file.filename}`;
-  } else if (body.coverImage) {
-    coverImage = sanitizeInput(body.coverImage);
+  } else if (body.coverImage !== undefined) {
+    const trimmedCover = sanitizeInput(body.coverImage);
+    if (trimmedCover) {
+      coverImage = trimmedCover;
+    }
   }
 
   let parsedTags = posts[idx].tags || [];
   if (Array.isArray(body.tags)) {
     parsedTags = body.tags.map(sanitizeInput);
-  } else if (typeof body.tags === 'string' && body.tags.trim()) {
+  } else if (typeof body.tags === 'string') {
     parsedTags = body.tags.split(',').map(t => sanitizeInput(t.trim())).filter(Boolean);
+  }
+
+  const newTitle = body.title !== undefined ? sanitizeInput(body.title) : posts[idx].title;
+  let slug = sanitizeInput(body.slug || posts[idx].slug || '');
+  if (!slug && newTitle) {
+    slug = newTitle
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[đĐ]/g, 'd')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+  if (!slug) slug = posts[idx].slug || ('bai-viet-' + Date.now());
+
+  let uniqueSlug = slug;
+  let counter = 1;
+  while (posts.some((p, i) => i !== idx && p.slug === uniqueSlug)) {
+    uniqueSlug = `${slug}-${counter}`;
+    counter++;
   }
 
   posts[idx] = {
     ...posts[idx],
-    ...body,
-    coverImage,
-    tags: parsedTags,
+    title: newTitle,
+    slug: uniqueSlug,
+    category: body.category !== undefined ? sanitizeInput(body.category) : posts[idx].category,
+    author: body.author !== undefined ? sanitizeInput(body.author) : posts[idx].author,
+    date: body.date !== undefined ? sanitizeInput(body.date) : posts[idx].date,
+    readTime: body.readTime !== undefined ? sanitizeInput(body.readTime) : posts[idx].readTime,
+    coverImage: coverImage,
     imagePosition: body.imagePosition ? sanitizeInput(body.imagePosition) : (posts[idx].imagePosition || 'center 20%'),
-    imageFit: body.imageFit ? sanitizeInput(body.imageFit) : (posts[idx].imageFit || 'cover')
+    imageFit: body.imageFit ? sanitizeInput(body.imageFit) : (posts[idx].imageFit || 'cover'),
+    summary: body.summary !== undefined ? sanitizeInput(body.summary) : posts[idx].summary,
+    content: body.content !== undefined ? body.content : posts[idx].content,
+    tags: parsedTags,
+    metaTitle: sanitizeInput(body.metaTitle || (newTitle ? (newTitle + ' | lophoccaulong.com') : posts[idx].metaTitle)),
+    metaDesc: sanitizeInput(body.metaDesc || body.summary || posts[idx].metaDesc || '')
   };
-  writeJson('posts.json', posts);
+
+  const writeSuccess = writeJson('posts.json', posts);
+  if (!writeSuccess) {
+    return res.status(500).json({ success: false, message: 'Lỗi ghi cập nhật bài viết vào ổ đĩa máy chủ!' });
+  }
+
   res.json({ success: true, message: 'Cập nhật bài viết thành công!', data: posts[idx] });
 });
 

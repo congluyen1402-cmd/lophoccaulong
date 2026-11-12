@@ -227,7 +227,7 @@
             </div>
             <p id="ach-form-subtitle" class="text-xs text-slate-500 mb-5">Đăng hình thực tế học viên đạt giải thưởng, huy chương để hiển thị lên Landing Page.</p>
 
-            <form id="form-add-achievement" class="space-y-4">
+            <form id="form-add-achievement" novalidate class="space-y-4">
               <input type="hidden" id="ach-id">
 
               <div>
@@ -284,7 +284,7 @@
                 </div>
                 <div class="mt-2">
                   <span class="text-[11px] text-slate-400">Hoặc dán URL ảnh nếu có:</span>
-                  <input type="url" id="ach-image-url" placeholder="https://..."
+                  <input type="text" id="ach-image-url" placeholder="https://... hoặc /uploads/achievements/..."
                          class="w-full mt-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
                 </div>
 
@@ -391,7 +391,7 @@
             </div>
             <p id="course-form-subtitle" class="text-xs text-slate-500 mb-5">Chọn nút "Sửa" ở danh sách bên phải để nạp khóa học cần đổi ảnh hoặc nội dung.</p>
 
-            <form id="form-edit-course" class="space-y-4">
+            <form id="form-edit-course" novalidate class="space-y-4">
               <input type="hidden" id="course-id" value="">
 
               <div>
@@ -438,7 +438,7 @@
                 </div>
                 <div class="mt-2">
                   <span class="text-[11px] text-slate-400">Hoặc dán URL ảnh nếu có:</span>
-                  <input type="url" id="course-image-url" placeholder="https://..."
+                  <input type="text" id="course-image-url" placeholder="https://... hoặc /uploads/courses/..."
                          class="w-full mt-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
                 </div>
 
@@ -535,7 +535,7 @@
           </div>
           <p class="text-xs text-slate-500 mb-5">Thay đổi hình ảnh vận động viên/sân tập nổi bật nhất ở đầu website và điều chỉnh góc chụp, nội dung thẻ nổi.</p>
 
-          <form id="form-hero-config" class="space-y-4">
+          <form id="form-hero-config" novalidate class="space-y-4">
             
             <!-- UPLOAD ẢNH HERO & CĂN CHỈNH -->
             <div>
@@ -552,7 +552,7 @@
               </div>
               <div class="mt-2">
                 <span class="text-[11px] text-slate-400">Hoặc dán URL ảnh mạng:</span>
-                <input type="url" id="hero-image-url" placeholder="https://..."
+                <input type="text" id="hero-image-url" placeholder="https://... hoặc /uploads/hero/..."
                        class="w-full mt-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
               </div>
 
@@ -679,7 +679,7 @@
             </h3>
             <p class="text-xs text-slate-500 mb-5">Đăng bài chuẩn Technical SEO để lên top tìm kiếm Google (Quận 4 & Quận 7).</p>
 
-            <form id="form-add-post" class="space-y-4">
+            <form id="form-add-post" novalidate class="space-y-4">
               <input type="hidden" id="post-id">
               
               <div>
@@ -731,7 +731,7 @@
                 </div>
                 <div class="mt-2">
                   <span class="text-[11px] text-slate-400">Hoặc dán URL ảnh bìa nếu có:</span>
-                  <input type="url" id="post-image-url" placeholder="https://..."
+                  <input type="text" id="post-image-url" placeholder="https://... hoặc /uploads/blog/..."
                          class="w-full mt-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
                 </div>
 
@@ -778,7 +778,7 @@
 
               <div>
                 <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Mô tả tóm tắt (SEO Meta Description)</label>
-                <textarea id="post-summary" rows="2" maxlength="160" placeholder="Đoạn văn ngắn 140-160 ký tự mô tả nội dung chính..."
+                <textarea id="post-summary" rows="2" maxlength="500" placeholder="Đoạn văn ngắn 140-160 ký tự mô tả nội dung chính..."
                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs"></textarea>
                 <div class="flex justify-between text-[11px] text-slate-400">
                   <span>Khuyên dùng cho Google SEO: 140-160 ký tự</span>
