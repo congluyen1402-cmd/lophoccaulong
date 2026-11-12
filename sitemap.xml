@@ -55,4 +55,28 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- BÀI VIẾT 5: ĐAU CỔ TAY & KHỚP VAI CẦU LÔNG -->
+  <url>
+    <loc>https://lophoccaulong.com/blog-detail.html?slug=dau-co-tay-va-khop-vai-khi-danh-cau-long-cach-khac-phuc</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- BÀI VIẾT 6: LẬT SƠ MI CỔ CHÂN & ĐAU KHỚP GỐI -->
+  <url>
+    <loc>https://lophoccaulong.com/blog-detail.html?slug=lat-so-mi-co-chan-va-dau-khop-goi-trong-cau-long</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- BÀI VIẾT 7: ĐAU THẮT LƯNG & CĂNG CƠ KHI ĐẬP CẦU SMASH -->
+  <url>
+    <loc>https://lophoccaulong.com/blog-detail.html?slug=dau-that-lung-va-cang-co-khi-dap-cau-long-smash</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
 </urlset>
