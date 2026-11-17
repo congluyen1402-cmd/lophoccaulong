@@ -79,4 +79,20 @@
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+
+  <!-- BÀI VIẾT 8: KỸ THUẬT ĐẬP CẦU LÔNG SMASH CHUẨN BWF TỪ A-Z -->
+  <url>
+    <loc>https://lophoccaulong.com/blog-detail.html?slug=ky-thuat-dap-cau-long-smash-chuan-bwf-tu-a-den-z</loc>
+    <lastmod>2026-11-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- BÀI VIẾT 9: KỸ THUẬT ĐẬP CẦU LÔNG SMASH CỰC CẮM KHÔNG ĐAU VAI -->
+  <url>
+    <loc>https://lophoccaulong.com/blog-detail.html?slug=ky-thuat-dap-cau-long-smash-cuc-cam-phat-luc-don-bay-khong-dau-vai</loc>
+    <lastmod>2026-11-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
 </urlset>
