@@ -3,15 +3,15 @@
   <!-- TRANG CHỦ -->
   <url>
     <loc>https://lophoccaulong.com/</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
-  <!-- TRANG THÔNG TIN HUẤN LUYỆN VIÊN TRƯỞNG -->
+  <!-- TRANG THÔNG TIN BAN HUẤN LUYỆN -->
   <url>
     <loc>https://lophoccaulong.com/huan-luyen-vien.html</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -19,7 +19,7 @@
   <!-- TRANG CHUYÊN MỤC BLOG KIẾN THỨC CẦU LÔNG -->
   <url>
     <loc>https://lophoccaulong.com/blog.html</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -27,39 +27,39 @@
   <!-- BÀI VIẾT 1: KỸ THUẬT CẦM VỢT V-GRIP -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=ky-thuat-cam-vot-v-grip-va-phat-luc-co-tay</loc>
-    <lastmod>2026-11-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-11-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
 
   <!-- BÀI VIẾT 2: BÍ QUYẾT CHỌN VỢT CẦU LÔNG -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=bi-quyet-chon-vot-cau-long-cho-nguoi-moi-bat-dau</loc>
-    <lastmod>2026-11-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-11-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
 
   <!-- BÀI VIẾT 3: 5 BÀI TẬP BỘ PHÁP DI CHUYỂN -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=5-bai-tap-bo-phap-di-chuyen-6-goc-san</loc>
-    <lastmod>2026-11-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-11-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
 
   <!-- BÀI VIẾT 4: REVIEW SÂN CẦU LÔNG T12 & DNI SPORT -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=review-san-cau-long-t12-q4-va-dni-sport-q7</loc>
-    <lastmod>2026-11-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-11-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
 
   <!-- BÀI VIẾT 5: ĐAU CỔ TAY & KHỚP VAI CẦU LÔNG -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=dau-co-tay-va-khop-vai-khi-danh-cau-long-cach-khac-phuc</loc>
-    <lastmod>2026-11-12</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -67,7 +67,7 @@
   <!-- BÀI VIẾT 6: LẬT SƠ MI CỔ CHÂN & ĐAU KHỚP GỐI -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=lat-so-mi-co-chan-va-dau-khop-goi-trong-cau-long</loc>
-    <lastmod>2026-11-12</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -75,7 +75,7 @@
   <!-- BÀI VIẾT 7: ĐAU THẮT LƯNG & CĂNG CƠ KHI ĐẬP CẦU SMASH -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=dau-that-lung-va-cang-co-khi-dap-cau-long-smash</loc>
-    <lastmod>2026-11-12</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -83,7 +83,7 @@
   <!-- BÀI VIẾT 8: KỸ THUẬT ĐẬP CẦU LÔNG SMASH CHUẨN BWF TỪ A-Z -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=ky-thuat-dap-cau-long-smash-chuan-bwf-tu-a-den-z</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
@@ -91,7 +91,7 @@
   <!-- BÀI VIẾT 9: KỸ THUẬT ĐẬP CẦU LÔNG SMASH CỰC CẮM KHÔNG ĐAU VAI -->
   <url>
     <loc>https://lophoccaulong.com/blog-detail.html?slug=ky-thuat-dap-cau-long-smash-cuc-cam-phat-luc-don-bay-khong-dau-vai</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>

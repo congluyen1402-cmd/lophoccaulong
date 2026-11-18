@@ -22,4 +22,5 @@ data/backup_*/
 # Local Agent Skills & Workflows
 .agent/
 .agents/
+scratch/
 
